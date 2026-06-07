@@ -3,7 +3,20 @@ import os
 import uuid
 from datetime import datetime
 
-DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "onabola.db")
+# If running on Vercel serverless, use the writable /tmp folder
+if os.environ.get("VERCEL"):
+    DB_PATH = "/tmp/onabola.db"
+    # Copy starter template database from root to /tmp if not exists
+    starter_db = os.path.join(os.path.dirname(os.path.abspath(__file__)), "onabola.db")
+    if os.path.exists(starter_db) and not os.path.exists(DB_PATH):
+        try:
+            import shutil
+            shutil.copy2(starter_db, DB_PATH)
+            print("Starter database copied to /tmp/onabola.db successfully.")
+        except Exception as e:
+            print("Error copying starter database to /tmp:", e)
+else:
+    DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "onabola.db")
 
 def get_db():
     conn = sqlite3.connect(DB_PATH)

@@ -22,8 +22,11 @@ app = Flask(__name__, static_folder='static', static_url_path='')
 # Initialize Database
 db.init_db()
 
-# Create uploads/voices folder if it doesn't exist
-os.makedirs("static/uploads/voices", exist_ok=True)
+# Create uploads/voices folder if it doesn't exist (handle read-only envs)
+try:
+    os.makedirs("static/uploads/voices", exist_ok=True)
+except Exception as e:
+    print("Could not create static uploads directory (Vercel read-only?):", e)
 
 # Inline keyboard helper to open Telegram Mini App
 def get_webapp_keyboard(telegram_id, referral_code=None):
@@ -84,6 +87,15 @@ def handle_start(message):
 
 @app.route("/")
 def index():
+    # Automatically set webhook if running on Vercel
+    if os.environ.get("VERCEL"):
+        try:
+            host = request.host
+            webhook_url = f"https://{host}/{TOKEN}"
+            bot.set_webhook(url=webhook_url)
+            print(f"Webhook successfully registered: {webhook_url}")
+        except Exception as e:
+            print("Failed to auto-register webhook:", e)
     return app.send_static_file("index.html")
 
 @app.route("/api/login", methods=["POST"])
@@ -297,9 +309,20 @@ def api_upload_voice():
     filename = f"{telegram_id}_{role}_seg{segment_id}_{timestamp}.webm"
     file_path = os.path.join("static/uploads/voices", filename)
     
-    voice_file.save(file_path)
-    
-    db.save_voice_sample(telegram_id, role, f"uploads/voices/{filename}")
+    # Save file to disk (fallback to /tmp if read-only)
+    db_relative_path = f"uploads/voices/{filename}"
+    try:
+        voice_file.save(file_path)
+        db.save_voice_sample(telegram_id, role, db_relative_path)
+    except Exception as e:
+        print("Could not save voice to static uploads folder (Vercel read-only?):", e)
+        try:
+            tmp_path = os.path.join("/tmp", filename)
+            voice_file.save(tmp_path)
+            db.save_voice_sample(telegram_id, role, f"tmp/{filename}")
+            print(f"Saved fallback voice to {tmp_path}")
+        except Exception as tmp_err:
+            print("Failed to save voice even to /tmp:", tmp_err)
     counts = db.get_voice_samples_count(telegram_id)
     
     return jsonify({
