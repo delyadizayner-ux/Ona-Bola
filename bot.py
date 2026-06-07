@@ -59,7 +59,10 @@ def handle_start(message):
             referred_by = ref_param
             
     # Create or update user in database
-    user = db.create_user(telegram_id, username, full_name, referred_by=referred_by)
+    try:
+        user = db.create_user(telegram_id, username, full_name, referred_by=referred_by)
+    except Exception as e:
+        print("DB create_user error:", e)
     
     # Welcome message
     welcome_text = (
@@ -73,14 +76,27 @@ def handle_start(message):
         f"Boshlash uchun quyidagi tugmani bosing:"
     )
     
-    # 1. Clear old reply keyboard buttons from the user's chat screen
-    bot.send_message(
-        telegram_id, 
-        "Yuklanmoqda... ⏳", 
-        reply_markup=telebot.types.ReplyKeyboardRemove()
-    )
+    # Send ONE welcome message: clears old reply keyboard + shows inline WebApp button
+    try:
+        bot.send_message(
+            telegram_id,
+            welcome_text,
+            parse_mode="Markdown",
+            reply_markup=get_webapp_keyboard(telegram_id)
+        )
+    except Exception as e:
+        print("Failed to send welcome message:", e)
+        # Fallback: send without Markdown in case formatting causes issues
+        try:
+            bot.send_message(
+                telegram_id,
+                welcome_text.replace("*", ""),
+                reply_markup=get_webapp_keyboard(telegram_id)
+            )
+        except Exception as e2:
+            print("Fallback message also failed:", e2)
     
-    # 2. Register WebApp Menu Button dynamically for this chat
+    # Try to set menu button (non-critical, don't block)
     try:
         url = WEBAPP_URL + f"?start=ref_{telegram_id}"
         bot.set_chat_menu_button(
@@ -91,28 +107,13 @@ def handle_start(message):
             )
         )
     except Exception as e:
-        print("Failed to set menu button dynamically:", e)
-        
-    # 3. Send welcome message with inline WebApp button
-    bot.send_message(
-        telegram_id,
-        welcome_text,
-        parse_mode="Markdown",
-        reply_markup=get_webapp_keyboard(telegram_id)
-    )
+        print("Failed to set menu button:", e)
 
 # Catch-all handler for other text or old buttons
 @bot.message_handler(func=lambda message: True)
 def handle_all_messages(message):
     telegram_id = message.chat.id
     full_name = f"{message.chat.first_name or ''} {message.chat.last_name or ''}".strip() or "Foydalanuvchi"
-    
-    # 1. Clear old reply keyboard buttons from the user's chat screen
-    bot.send_message(
-        telegram_id, 
-        "Eski tugmalar tozalanmoqda... ⏳", 
-        reply_markup=telebot.types.ReplyKeyboardRemove()
-    )
     
     welcome_text = (
         f"👶 *Hurmatli {full_name}!*\n\n"
@@ -121,7 +122,22 @@ def handle_all_messages(message):
         f"Pastdagi tugmani bosib ilovaga kiring:"
     )
     
-    # 2. Register WebApp Menu Button dynamically just in case
+    # Send ONE message with inline WebApp button
+    try:
+        bot.send_message(
+            telegram_id,
+            welcome_text,
+            parse_mode="Markdown",
+            reply_markup=get_webapp_keyboard(telegram_id)
+        )
+    except Exception as e:
+        print("Failed to send catch-all message:", e)
+        try:
+            bot.send_message(telegram_id, welcome_text.replace("*", ""), reply_markup=get_webapp_keyboard(telegram_id))
+        except Exception as e2:
+            print("Fallback catch-all also failed:", e2)
+    
+    # Try to set menu button (non-critical)
     try:
         url = WEBAPP_URL + f"?start=ref_{telegram_id}"
         bot.set_chat_menu_button(
@@ -132,15 +148,7 @@ def handle_all_messages(message):
             )
         )
     except Exception as e:
-        print("Failed to set menu button dynamically:", e)
-        
-    # 3. Send message with inline WebApp button
-    bot.send_message(
-        telegram_id,
-        welcome_text,
-        parse_mode="Markdown",
-        reply_markup=get_webapp_keyboard(telegram_id)
-    )
+        print("Failed to set menu button:", e)
 
 # --- Flask API Routes ---
 
