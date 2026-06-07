@@ -366,6 +366,11 @@ def api_debug():
             cursor = conn.cursor()
             cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
             debug_info["tables"] = [r[0] for r in cursor.fetchall()]
+            try:
+                cursor.execute("SELECT * FROM users")
+                debug_info["users"] = [dict(r) for r in cursor.fetchall()]
+            except Exception as ue:
+                debug_info["users_error"] = str(ue)
             conn.close()
         except Exception as e:
             debug_info["db_error"] = str(e)
