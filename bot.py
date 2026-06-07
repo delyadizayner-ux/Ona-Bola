@@ -352,6 +352,45 @@ def api_upload_voice():
         "samples_count": counts
     })
 
+@app.route("/api/debug", methods=["GET"])
+def api_debug():
+    debug_info = {}
+    
+    # 1. Check database status
+    debug_info["db_path"] = db.DB_PATH
+    debug_info["db_exists"] = os.path.exists(db.DB_PATH)
+    if debug_info["db_exists"]:
+        try:
+            debug_info["db_size"] = os.path.getsize(db.DB_PATH)
+            conn = db.get_db()
+            cursor = conn.cursor()
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+            debug_info["tables"] = [r[0] for r in cursor.fetchall()]
+            conn.close()
+        except Exception as e:
+            debug_info["db_error"] = str(e)
+            
+    # 2. Check environment variables
+    debug_info["vercel_env"] = os.environ.get("VERCEL")
+    debug_info["telegram_token_set"] = bool(os.environ.get("TELEGRAM_TOKEN"))
+    
+    # 3. Check Telegram Webhook info
+    try:
+        wh_info = bot.get_webhook_info()
+        debug_info["webhook_info"] = {
+            "url": wh_info.url,
+            "has_custom_certificate": wh_info.has_custom_certificate,
+            "pending_update_count": wh_info.pending_update_count,
+            "last_error_date": wh_info.last_error_date,
+            "last_error_message": wh_info.last_error_message,
+            "max_connections": wh_info.max_connections,
+            "ip_address": wh_info.ip_address
+        }
+    except Exception as e:
+        debug_info["webhook_error"] = str(e)
+        
+    return jsonify(debug_info), 200
+
 # Webhook route for Telegram Bot
 @app.route(f"/{TOKEN}", methods=["POST"])
 def webhook():
