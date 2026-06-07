@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
         telegramId = tg.initDataUnsafe.user.id;
         username = tg.initDataUnsafe.user.username || "";
-        fullName = `${tg.initDataUnsafe.user.first_name || ""} ${tg.initDataUnsafe.user.last_name || ""}`.strip();
+        fullName = `${tg.initDataUnsafe.user.first_name || ""} ${tg.initDataUnsafe.user.last_name || ""}`.trim();
     }
     
     // In start parameter from Telegram, it can contain ref code
