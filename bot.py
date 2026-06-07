@@ -76,6 +76,28 @@ def handle_start(message):
         f"Boshlash uchun quyidagi tugmani bosing:"
     )
     
+    # 1. Clear old reply keyboard buttons from the user's chat screen
+    bot.send_message(
+        telegram_id, 
+        "Yuklanmoqda... ⏳", 
+        reply_markup=telebot.types.ReplyKeyboardRemove()
+    )
+    
+    # 2. Register WebApp Menu Button dynamically for this chat
+    try:
+        webapp_base_url = os.getenv("WEBAPP_URL", "https://ona-bola-vo1p.vercel.app")
+        url = webapp_base_url + f"?start=ref_{telegram_id}"
+        bot.set_chat_menu_button(
+            chat_id=telegram_id, 
+            menu_button=telebot.types.MenuButtonWebApp(
+                text="👶 Ilovani ochish", 
+                web_app=telebot.types.WebAppInfo(url=url)
+            )
+        )
+    except Exception as e:
+        print("Failed to set menu button dynamically:", e)
+        
+    # 3. Send welcome message with inline WebApp button
     bot.send_message(
         telegram_id,
         welcome_text,
