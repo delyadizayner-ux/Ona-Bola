@@ -14,6 +14,7 @@ import story_generator
 load_dotenv()
 
 TOKEN = os.getenv("TELEGRAM_TOKEN", "8865315152:AAFZ65EzM8wW62SHqtZy4GYHqAEkU5jHuWA")
+WEBAPP_URL = os.getenv("WEBAPP_URL", "https://ona-bola-vo1p.vercel.app" if os.environ.get("VERCEL") else "http://127.0.0.1:5000")
 bot = telebot.TeleBot(TOKEN)
 
 # Initialize Flask app to serve frontend from 'static' folder
@@ -30,11 +31,7 @@ except Exception as e:
 
 # Inline keyboard helper to open Telegram Mini App
 def get_webapp_keyboard(telegram_id, referral_code=None):
-    # In production, set this in your .env. Defaults to localhost for local testing
-    webapp_base_url = os.getenv("WEBAPP_URL", "http://127.0.0.1:5000")
-    
-    # We can pass referrer code as a query param if needed
-    url = webapp_base_url
+    url = WEBAPP_URL
     if referral_code:
         url += f"?start={referral_code}"
     else:
@@ -85,8 +82,7 @@ def handle_start(message):
     
     # 2. Register WebApp Menu Button dynamically for this chat
     try:
-        webapp_base_url = os.getenv("WEBAPP_URL", "https://ona-bola-vo1p.vercel.app")
-        url = webapp_base_url + f"?start=ref_{telegram_id}"
+        url = WEBAPP_URL + f"?start=ref_{telegram_id}"
         bot.set_chat_menu_button(
             chat_id=telegram_id, 
             menu_button=telebot.types.MenuButtonWebApp(
@@ -98,6 +94,47 @@ def handle_start(message):
         print("Failed to set menu button dynamically:", e)
         
     # 3. Send welcome message with inline WebApp button
+    bot.send_message(
+        telegram_id,
+        welcome_text,
+        parse_mode="Markdown",
+        reply_markup=get_webapp_keyboard(telegram_id)
+    )
+
+# Catch-all handler for other text or old buttons
+@bot.message_handler(func=lambda message: True)
+def handle_all_messages(message):
+    telegram_id = message.chat.id
+    full_name = f"{message.chat.first_name or ''} {message.chat.last_name or ''}".strip() or "Foydalanuvchi"
+    
+    # 1. Clear old reply keyboard buttons from the user's chat screen
+    bot.send_message(
+        telegram_id, 
+        "Eski tugmalar tozalanmoqda... ⏳", 
+        reply_markup=telebot.types.ReplyKeyboardRemove()
+    )
+    
+    welcome_text = (
+        f"👶 *Hurmatli {full_name}!*\n\n"
+        f"Ona & Bola loyihamiz to'liq yangilandi! Endi barcha bo'limlar, maslahatlar va "
+        f"AI ertaklar faqatgina bizning qulay *Mini App* ilovamiz ichida joylashgan. 📱\n\n"
+        f"Pastdagi tugmani bosib ilovaga kiring:"
+    )
+    
+    # 2. Register WebApp Menu Button dynamically just in case
+    try:
+        url = WEBAPP_URL + f"?start=ref_{telegram_id}"
+        bot.set_chat_menu_button(
+            chat_id=telegram_id, 
+            menu_button=telebot.types.MenuButtonWebApp(
+                text="👶 Ilovani ochish", 
+                web_app=telebot.types.WebAppInfo(url=url)
+            )
+        )
+    except Exception as e:
+        print("Failed to set menu button dynamically:", e)
+        
+    # 3. Send message with inline WebApp button
     bot.send_message(
         telegram_id,
         welcome_text,
