@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ona & Bola - AI Parenting Assistant</title>
+    <!-- Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Main Style Sheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 1. LOADING SCREEN -->
+        <div id="loader-screen" class="screen active">
+            <div class="loader-container">
+                <div class="magic-wand">✨</div>
+                <div class="spinner"></div>
+                <h2>Ona & Bola</h2>
+                <p>Sehrli olamga yuklanmoqda...</p>
+            </div>
+        </div>
+
+        <!-- 2. ONBOARDING SCREEN -->
+        <div id="onboarding-screen" class="screen">
+            <div class="header">
+                <h1>Kichik Qahramon Profili</h1>
+                <p>Farzandingizga mos shaxsiy ertaklar yaratishimiz uchun ma'lumotlarni kiriting.</p>
+            </div>
+            <form id="onboarding-form">
+                <div class="form-group">
+                    <label for="child-name">Farzandingiz ismi</label>
+                    <input type="text" id="child-name" placeholder="Masalan: Asadbek" required>
+                </div>
+                <div class="form-group">
+                    <label for="child-age">Yoshi</label>
+                    <input type="number" id="child-age" min="1" max="15" placeholder="Masalan: 4" required>
+                </div>
+                <div class="form-group">
+                    <label for="fav-hero">Sevimli multfilm qahramoni</label>
+                    <input type="text" id="fav-hero" placeholder="Masalan: Spiderman, Lolo..." required>
+                </div>
+                <div class="form-group">
+                    <label for="fav-animal">Sevimli hayvoni</label>
+                    <input type="text" id="fav-animal" placeholder="Masalan: Quyoncha, Kuchukcha..." required>
+                </div>
+                <div class="form-group">
+                    <label for="fav-toy">Sevimli o'yinchog'i</label>
+                    <input type="text" id="fav-toy" placeholder="Masalan: Qizil mashina, Ayiqcha..." required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="boy-friend">Eng yaqin o'g'il o'rtog'i</label>
+                        <input type="text" id="boy-friend" placeholder="Masalan: Solih">
+                    </div>
+                    <div class="form-group">
+                        <label for="girl-friend">Eng yaqin qiz o'rtog'i</label>
+                        <input type="text" id="girl-friend" placeholder="Masalan: Oysha">
+                    </div>
+                </div>
+
+                <div class="problems-section">
+                    <h3>Yaxshilanishi kerak bo'lgan odatlar</h3>
+                    <p class="section-desc">Ertaklar orqali tuzatiladigan odatlarni tanlang (kamida 1 ta):</p>
+                    <div class="problem-chips">
+                        <div class="chip-checkbox">
+                            <input type="checkbox" id="prob-screentime" value="screentime">
+                            <label for="prob-screentime">📱 Telefonni ko'p ko'rish</label>
+                        </div>
+                        <div class="chip-checkbox">
+                            <input type="checkbox" id="prob-teeth" value="teeth_brush">
+                            <label for="prob-teeth">🪥 Tish yuvmaslik</label>
+                        </div>
+                        <div class="chip-checkbox">
+                            <input type="checkbox" id="prob-food" value="food">
+                            <label for="prob-food">🍔 Fast-food / Shirinliklar</label>
+                        </div>
+                        <div class="chip-checkbox">
+                            <input type="checkbox" id="prob-bedtime" value="bedtime">
+                            <label for="prob-bedtime">🌙 Kech uxlash</label>
+                        </div>
+                        <div class="chip-checkbox">
+                            <input type="checkbox" id="prob-behavior" value="behavior">
+                            <label for="prob-behavior">😠 Ujarlik / Aytganini qildirish</label>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="save-profile-btn">Profilni saqlash</button>
+            </form>
+        </div>
+
+        <!-- 3. DASHBOARD SCREEN -->
+        <div id="dashboard-screen" class="screen">
+            <div class="dashboard-header">
+                <div class="user-info">
+                    <div class="avatar">👶</div>
+                    <div>
+                        <h3 id="dash-child-name">Asadbek Profili</h3>
+                        <p id="dash-child-age">4 yosh</p>
+                    </div>
+                </div>
+                <div class="tokens-badge">
+                    <span class="icon">✨</span>
+                    <span id="dash-tokens">3</span> ta ertak
+                </div>
+            </div>
+
+            <!-- Dashboard Navigation Tabs -->
+            <div class="dashboard-tabs">
+                <button class="tab-btn active" data-tab="tab-home">
+                    <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                    Bosh sahifa
+                </button>
+                <button class="tab-btn" data-tab="tab-stories">
+                    <svg viewBox="0 0 24 24"><path d="M12 11.55C9.64 9.35 6.48 8 3 8v11c3.48 0 6.64 1.35 9 3.55 2.36-2.2 5.52-3.55 9-3.55V8c-3.48 0-6.64 1.35-9 3.55zM12 8c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3z"/></svg>
+                    Ertaklar
+                </button>
+                <button class="tab-btn" data-tab="tab-tasks">
+                    <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                    Vazifalar
+                </button>
+                <button class="tab-btn" data-tab="tab-profile">
+                    <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                    Profil
+                </button>
+            </div>
+
+            <!-- Tab Contents -->
+            <div class="tab-container">
+                <!-- TAB HOME -->
+                <div id="tab-home" class="tab-content active">
+                    <!-- Premium Status banner -->
+                    <div class="premium-banner" id="premium-status-banner" style="display: none;">
+                        👑 <b>Premium faol!</b> Cheksiz AI ertaklar va maxsus audio ovozlar.
+                    </div>
+
+                    <!-- AI Story Generator Section -->
+                    <div class="card generator-card">
+                        <div class="card-header">
+                            <h2>✨ Sehrli AI Ertakchi</h2>
+                            <p>Bolangizdagi muammoni tanlang, AI shaxsiylashtirilgan tarbiyaviy ertak yaratib beradi.</p>
+                        </div>
+                        <div class="problem-selector">
+                            <div class="form-group">
+                                <label for="story-problem-key">Ertak mavzusini (odatini) tanlang:</label>
+                                <select id="story-problem-key">
+                                    <!-- Populated dynamically via JS -->
+                                </select>
+                            </div>
+                            <button class="btn btn-primary btn-spark" id="btn-generate-story">
+                                <span class="spark-icon">🪄</span> Ertak yaratish
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Today's Tasks Summary -->
+                    <div class="card tasks-summary-card">
+                        <div class="card-header-row">
+                            <h2>📅 Bugungi topshiriqlar</h2>
+                            <span class="stars-count" id="home-stars-count">⭐ 0 ball</span>
+                        </div>
+                        <div class="tasks-list" id="home-tasks-list">
+                            <!-- Populated dynamically -->
+                            <p class="empty-text">Vazifalar yuklanmoqda...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB STORIES -->
+                <div id="tab-stories" class="tab-content">
+                    <div class="stories-header">
+                        <h2>📚 Ertaklar kutubxonasi</h2>
+                        <p>Farzandingiz uchun yaratilgan barcha AI sarguzashtlar.</p>
+                    </div>
+                    <div class="stories-grid" id="stories-list">
+                        <!-- Populated dynamically -->
+                        <div class="empty-state">
+                            <span class="icon">📖</span>
+                            <p>Hali hech qanday ertak yaratilmagan. Birinchi ertakni yaratib ko'ring!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB TASKS -->
+                <div id="tab-tasks" class="tab-content">
+                    <div class="tasks-header">
+                        <h2>🎯 Kunlik mini-topshiriqlar</h2>
+                        <p>Farzandingiz odatlarini o'zgartirishi uchun topshiriqlarni bajaring va yulduzlarni to'plang!</p>
+                    </div>
+                    <div class="tasks-container-large">
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" id="tasks-progress-fill" style="width: 0%;"></div>
+                            <span id="tasks-progress-text">0% bajarildi</span>
+                        </div>
+                        <div class="tasks-list-full" id="full-tasks-list">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB PROFILE -->
+                <div id="tab-profile" class="tab-content">
+                    <!-- User Details Card -->
+                    <div class="card profile-info-card">
+                        <h2>👩‍👦 Mening Profilim</h2>
+                        <div class="info-row">
+                            <span>Ona (Akkaunt):</span>
+                            <strong id="profile-parent-name">Local Tester</strong>
+                        </div>
+                        <div class="info-row">
+                            <span>Bola ismi:</span>
+                            <strong id="profile-child-name">Asadbek</strong>
+                        </div>
+                        <div class="info-row">
+                            <span>Obuna turi:</span>
+                            <strong id="profile-sub-type" class="badge">Bepul</strong>
+                        </div>
+                        <button class="btn btn-secondary btn-sm" id="btn-edit-profile">✏️ Profil tahrirlash</button>
+                    </div>
+
+                    <!-- Referral Program Card -->
+                    <div class="card ref-card">
+                        <h2>🎁 Do'stlarni taklif qiling</h2>
+                        <p>Har bir taklif qilingan ona uchun <b>+1 ta bepul AI ertak yaratish</b> imkoniyatini oling!</p>
+                        <div class="ref-stats">
+                            <div class="stat-box">
+                                <span class="num" id="ref-count">0</span>
+                                <span class="label">Taklif etilganlar</span>
+                            </div>
+                            <div class="stat-box">
+                                <span class="num" id="ref-tokens">3</span>
+                                <span class="label">Tokenlar balansi</span>
+                            </div>
+                        </div>
+                        <div class="ref-link-box">
+                            <input type="text" id="ref-link-input" readonly value="Yuklanmoqda...">
+                            <button class="btn btn-primary" id="btn-copy-ref">Nusxa olish</button>
+                        </div>
+                    </div>
+
+                    <!-- Monetization/Subscription Card -->
+                    <div class="card pricing-card">
+                        <h2>👑 Premium obuna</h2>
+                        <p>Cheksiz AI ertaklar yozing, audio ertaklar eshiting va maxsus ovozli qahramonlarni faollashtiring.</p>
+                        <div class="pricing-plans">
+                            <div class="plan" data-plan="weekly">
+                                <h3>Haftalik</h3>
+                                <div class="price">$1.99</div>
+                                <p>Har hafta yangilanish</p>
+                                <button class="btn btn-secondary btn-subscribe" data-plan="weekly">Sotib olish</button>
+                            </div>
+                            <div class="plan popular" data-plan="monthly">
+                                <div class="ribbon">Tavsiya etiladi</div>
+                                <h3>Oylik</h3>
+                                <div class="price">$4.99</div>
+                                <p>Har oy yangilanish</p>
+                                <button class="btn btn-primary btn-subscribe" data-plan="monthly">Sotib olish</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. STORY VIEWER SCREEN -->
+        <div id="story-viewer-screen" class="screen">
+            <div class="story-viewer-header">
+                <button class="btn-back" id="btn-close-story">
+                    <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+                    Orqaga
+                </button>
+                <div class="story-magic-stars">✨📖✨</div>
+            </div>
+            <div class="story-content-wrapper">
+                <h1 id="view-story-title">Sehrli Ertak</h1>
+                <div class="story-meta">
+                    <span id="view-story-date">Hozirgina</span>
+                </div>
+                
+                <!-- Mock Audio Player -->
+                <div class="audio-player-card">
+                    <div class="play-btn-circle" id="btn-play-audio">
+                        <span class="icon">▶️</span>
+                    </div>
+                    <div class="audio-info">
+                        <strong>Audio ertak (AI Ovozli)</strong>
+                        <p id="audio-status">Ovozlashtirilgan audio tinglash</p>
+                    </div>
+                    <div class="audio-voice-selector">
+                        <select id="voice-char">
+                            <option value="sweet">Shirin Oyi 👩</option>
+                            <option value="hero">Jasur Botir 🦸</option>
+                            <option value="grandma">Ertakchi Buvijon 👵</option>
+                            <option value="cloned">Mening ovozim (Cloned AI) 👩‍❤️‍👨</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="story-body hidden" id="view-story-body">
+                    <!-- Text content of the story for backward compatibility -->
+                </div>
+
+                <!-- 3D Virtual Book Section -->
+                <div class="book-container">
+                    <div class="book" id="virtual-3d-book">
+                        <!-- Page 0: Cover page -->
+                        <div class="book-page cover-front active" id="book-page-cover">
+                            <img class="page-bg-img" id="book-cover-img" src="images/screentime_cover.png" alt="Cover Image">
+                            <div class="page-content">
+                                <div class="book-badge">NANA BANANA OLAMI 🍌</div>
+                                <h1 id="book-cover-title">Sehrli Kitob</h1>
+                                <p class="cover-desc">Kitobni varaqlash va o'qish uchun "Keyingi" tugmasini bosing.</p>
+                                <div class="living-particle star-1">⭐</div>
+                                <div class="living-particle star-2">⭐</div>
+                            </div>
+                        </div>
+
+                        <!-- Page 1: Segment 1 (Introduction) -->
+                        <div class="book-page page-inner" id="book-page-1">
+                            <img class="page-bg-img" id="book-page-img-1" src="images/screentime_1.png" alt="Page 1 Image">
+                            <div class="page-content">
+                                <div class="page-num">Sahifa 1</div>
+                                <div class="page-text-ribbon">
+                                    <div class="story-text-container" id="book-text-1">
+                                        <!-- Populated dynamically with word spans -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Page 2: Segment 2 (Adventure) -->
+                        <div class="book-page page-inner" id="book-page-2">
+                            <img class="page-bg-img" id="book-page-img-2" src="images/screentime_2.png" alt="Page 2 Image">
+                            <div class="page-content">
+                                <div class="page-num">Sahifa 2</div>
+                                <div class="page-text-ribbon">
+                                    <div class="story-text-container" id="book-text-2">
+                                        <!-- Populated dynamically with word spans -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Page 3: Segment 3 (Moral & Task) -->
+                        <div class="book-page page-inner" id="book-page-3">
+                            <img class="page-bg-img" id="book-page-img-3" src="images/screentime_3.png" alt="Page 3 Image">
+                            <div class="page-content">
+                                <div class="page-num">Sahifa 3</div>
+                                <div class="page-text-ribbon">
+                                    <div class="story-text-container" id="book-text-3">
+                                        <!-- Populated dynamically with word spans -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Book Pagination controls -->
+                    <div class="book-controls">
+                        <button class="btn btn-secondary btn-sm" id="btn-prev-page" disabled>⬅️ Oldingi</button>
+                        <span id="book-page-indicator">Muqova</span>
+                        <button class="btn btn-secondary btn-sm" id="btn-next-page">Keyingi ➡️</button>
+                    </div>
+                </div>
+
+                <!-- Voice Dubbing & Harmonization Section -->
+                <div class="story-box dubbing-box">
+                    <div class="dubbing-header">
+                        <h3>🎙️ Sehrli Duet & Ovoz yozish</h3>
+                        <p>Ertakni o'zingizning mehrli ovozingizda bolangizga sovg'a qiling. Ovozlar avtomatik tarzda toza va ertaknamo aks-sadoli qilib tayyorlanadi.</p>
+                        
+                        <!-- Voice Cloning Status Banner -->
+                        <div class="voice-cloning-banner" id="voice-cloning-banner">
+                            <div class="cloning-info-row">
+                                <span class="voice-icon">🔊</span>
+                                <span id="voice-status-text">Ovoz modeli kloni: Ona (0/3), Ota (0/3) yozib olindi</span>
+                            </div>
+                            <div class="voice-progress-track">
+                                <div class="voice-progress-fill" id="voice-clone-progress-fill" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Voice Harmonizer Settings -->
+                    <div class="fx-panel">
+                        <span class="fx-title">AI Ovoz Sozlagich:</span>
+                        <div class="fx-options">
+                            <label class="switch-container">
+                                <input type="checkbox" id="fx-reverb" checked>
+                                <span class="slider-switch"></span>
+                                <span>Sehrli aks-sado ✨</span>
+                            </label>
+                            <label class="switch-container">
+                                <input type="checkbox" id="fx-warm" checked>
+                                <span class="slider-switch"></span>
+                                <span>Yumshoq ovoz (Warm) 🧸</span>
+                            </label>
+                        </div>
+                        <div class="bg-music-control">
+                            <label class="switch-container">
+                                <input type="checkbox" id="bg-music-toggle" checked>
+                                <span class="slider-switch"></span>
+                                <span>Sokin fon musiqasi 🌙</span>
+                            </label>
+                            <div class="volume-slider-box">
+                                <span>Musiqa balandligi:</span>
+                                <input type="range" id="bg-music-volume" min="0" max="0.3" step="0.05" value="0.1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Duet recording segments -->
+                    <div class="duet-segments">
+                        <!-- Segment 1 -->
+                        <div class="duet-card role-mom" id="seg-1">
+                            <div class="role-badge">👩 Ona o'qiydi (Sokin, mehrli shivirlash)</div>
+                            <p class="seg-text" id="seg-text-1">Ertakning kirish qismi yuklanmoqda...</p>
+                            <div class="seg-controls">
+                                <button class="btn-rec btn-start-rec" data-seg="1">🎙️ Yozish</button>
+                                <button class="btn-rec btn-stop-rec hidden" data-seg="1">⏹️ To'xtatish</button>
+                                <button class="btn-rec btn-play-rec hidden" data-seg="1">▶️ Tinglash</button>
+                                <span class="rec-status" id="rec-status-1">Kutilmoqda</span>
+                            </div>
+                        </div>
+
+                        <!-- Segment 2 -->
+                        <div class="duet-card role-dad" id="seg-2">
+                            <div class="role-badge">👨 Ota o'qiydi (Xotirjam, ishonchli ovozda)</div>
+                            <p class="seg-text" id="seg-text-2">Ertakning sarguzasht qismi yuklanmoqda...</p>
+                            <div class="seg-controls">
+                                <button class="btn-rec btn-start-rec" data-seg="2">🎙️ Yozish</button>
+                                <button class="btn-rec btn-stop-rec hidden" data-seg="2">⏹️ To'xtatish</button>
+                                <button class="btn-rec btn-play-rec hidden" data-seg="2">▶️ Tinglash</button>
+                                <span class="rec-status" id="rec-status-2">Kutilmoqda</span>
+                            </div>
+                        </div>
+
+                        <!-- Segment 3 -->
+                        <div class="duet-card role-duet" id="seg-3">
+                            <div class="role-badge">👩‍❤️‍👨 Birgalikda yoki Navbatma-navbat (Xulosa)</div>
+                            <p class="seg-text" id="seg-text-3">Ertakning xulosa qismi yuklanmoqda...</p>
+                            <div class="seg-controls">
+                                <button class="btn-rec btn-start-rec" data-seg="3">🎙️ Yozish</button>
+                                <button class="btn-rec btn-stop-rec hidden" data-seg="3">⏹️ To'xtatish</button>
+                                <button class="btn-rec btn-play-rec hidden" data-seg="3">▶️ Tinglash</button>
+                                <span class="rec-status" id="rec-status-3">Kutilmoqda</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Master play button -->
+                    <button class="btn btn-primary btn-spark mt-20" id="btn-play-duet" disabled>
+                        <span>🎧 Birlashtirilgan Ertakni Eshitish</span>
+                    </button>
+                </div>
+
+                <div class="story-box story-moral">
+                    <h3>💡 Tarbiyaviy xulosa</h3>
+                    <p id="view-story-moral">Farzandingiz uchun bu ertakdan kelib chiqadigan asosiy ibrat.</p>
+                </div>
+
+                <div class="story-box story-task">
+                    <h3>🎯 Ertak topshirig'i</h3>
+                    <p id="view-story-task">Ertak oxiridagi bola uchun qiziqarli vazifa.</p>
+                    <button class="btn btn-primary" id="btn-add-story-task">Vazifalar ro'yxatiga qo'shish</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Entry Point -->
+    <script src="app.js"></script>
+</body>
+</html>
