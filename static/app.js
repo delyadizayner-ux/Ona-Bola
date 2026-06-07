@@ -57,7 +57,10 @@ document.addEventListener("DOMContentLoaded", () => {
             s.style.display = "none";
         });
         const activeScreen = document.getElementById(screenId);
-        activeScreen.style.display = "flex";
+        // Story viewer uses position:fixed, so use block display for proper scrolling
+        activeScreen.style.display = (screenId === "story-viewer-screen") ? "block" : "flex";
+        // Scroll to top when switching screens
+        activeScreen.scrollTop = 0;
         setTimeout(() => {
             activeScreen.classList.add("active");
         }, 50);

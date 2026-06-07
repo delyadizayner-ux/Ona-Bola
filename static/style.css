@@ -54,6 +54,10 @@ body {
     opacity: 0;
     transform: translateY(15px);
     transition: var(--transition);
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
 }
 
 .screen.active {
@@ -61,6 +65,7 @@ body {
     flex-direction: column;
     opacity: 1;
     transform: translateY(0);
+    overflow-y: auto;
 }
 
 /* 1. LOADING SCREEN */
@@ -735,8 +740,10 @@ select:focus {
     top: 0;
     left: 0;
     width: 100%;
-    min-height: 100vh;
+    height: 100vh;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
 }
 
 .story-viewer-header {
