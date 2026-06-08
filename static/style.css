@@ -123,6 +123,7 @@ body {
     overflow-y: scroll;
     scroll-snap-type: y mandatory;
     scroll-behavior: smooth;
+    overscroll-behavior-y: none;
 }
 
 .vertical-scroll-container::-webkit-scrollbar {
@@ -160,29 +161,34 @@ body {
 }
 
 .scroll-section h2.overlay-text {
-    font-size: 30px;
+    font-size: 24px;
     font-weight: 800;
     color: var(--primary-dark);
     margin-bottom: 0;
-    line-height: 1.1;
+    line-height: 1.2;
+    letter-spacing: 0.5px;
     position: absolute;
-    top: -20px;
-    width: 130%;
-    left: -15%;
+    top: -10px;
+    width: 140%;
+    left: -20%;
     z-index: 5;
+    /* Soft text shadow to make it pop subtly */
+    text-shadow: 0 4px 15px rgba(255,255,255,0.8);
 }
 
 .scroll-section p.overlay-text {
-    font-size: 16px;
+    font-size: 15px;
     color: var(--text-color);
-    line-height: 1.4;
+    line-height: 1.5;
+    letter-spacing: 0.3px;
     margin: 0;
     font-weight: 600;
     position: absolute;
-    bottom: -15px;
-    width: 110%;
-    left: -5%;
+    bottom: -10px;
+    width: 120%;
+    left: -10%;
     z-index: 5;
+    text-shadow: 0 2px 10px rgba(255,255,255,0.7);
 }
 
 .hero-wrapper {
@@ -253,37 +259,43 @@ body {
 }
 
 /* Premium Animations */
-@keyframes floatPremium {
-    0% { transform: translateY(0px) scale(1); }
-    50% { transform: translateY(-15px) scale(1.02); }
-    100% { transform: translateY(0px) scale(1); }
+@keyframes breathePremium {
+    0% { transform: scale(1); filter: brightness(1); }
+    50% { transform: scale(1.03); filter: brightness(1.04); }
+    100% { transform: scale(1); filter: brightness(1); }
 }
 
-@keyframes walkBounce {
-    0% { transform: translateY(0) rotate(-2deg); }
-    100% { transform: translateY(-10px) rotate(2deg); }
+@keyframes swayPremium {
+    0% { transform: rotate(-1.5deg) translateY(0); }
+    50% { transform: rotate(1.5deg) translateY(-8px); }
+    100% { transform: rotate(-1.5deg) translateY(0); }
 }
 
-@keyframes slideUpFade {
-    0% { opacity: 0; transform: translateY(30px); }
+@keyframes smoothZoom {
+    0% { opacity: 0; transform: scale(0.9) translateY(20px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes textReveal {
+    0% { opacity: 0; transform: translateY(15px); }
     100% { opacity: 1; transform: translateY(0); }
 }
 
 /* Applying Animations */
-.float-animation { animation: floatPremium 4s ease-in-out infinite; }
-.walk-animation { animation: walkBounce 0.8s infinite alternate ease-in-out; }
+.float-animation { animation: breathePremium 5s ease-in-out infinite; }
+.walk-animation { animation: swayPremium 4s ease-in-out infinite; }
 
 /* In-view triggers for JS */
-.is-visible .scene-content h2 {
-    animation: slideUpFade 0.8s ease forwards 0.2s;
-    opacity: 0;
-}
-.is-visible .scene-content p {
-    animation: slideUpFade 0.8s ease forwards 0.4s;
-    opacity: 0;
-}
 .is-visible .hero-wrapper {
-    animation: slideUpFade 0.8s ease forwards;
+    animation: smoothZoom 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    opacity: 0;
+}
+.is-visible h2.overlay-text {
+    animation: textReveal 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 0.4s;
+    opacity: 0;
+}
+.is-visible p.overlay-text {
+    animation: textReveal 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 0.6s;
     opacity: 0;
 }
 
