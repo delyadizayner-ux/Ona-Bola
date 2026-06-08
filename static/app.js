@@ -149,7 +149,10 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("dash-tokens").innerText = currentUser.bonus_tokens;
         
         // Profile Info
-        document.getElementById("profile-parent-name").innerText = currentUser.full_name;
+        const mNameEl = document.getElementById("profile-mother-name");
+        if (mNameEl) mNameEl.innerText = currentUser.mother_name || "-";
+        const fNameEl = document.getElementById("profile-father-name");
+        if (fNameEl) fNameEl.innerText = currentUser.father_name || "-";
         document.getElementById("profile-sub-type").innerText = currentUser.subscription_status === "free" ? "Bepul" : currentUser.subscription_status.toUpperCase();
         document.getElementById("profile-sub-type").className = `badge ${currentUser.subscription_status}`;
         document.getElementById("ref-tokens").innerText = currentUser.bonus_tokens;
@@ -1149,22 +1152,32 @@ document.addEventListener("DOMContentLoaded", () => {
     // 7. Edit Profile Button
     document.getElementById("btn-edit-profile").addEventListener("click", () => {
         triggerHaptic();
-        // Populate current details in form
-        if (currentChild) {
-            document.getElementById("child-name").value = currentChild.name;
-            document.getElementById("child-age").value = currentChild.age;
-            document.getElementById("fav-hero").value = currentChild.favorite_hero;
-            document.getElementById("fav-animal").value = currentChild.favorite_animal;
-            document.getElementById("fav-toy").value = currentChild.favorite_toy;
-            document.getElementById("boy-friend").value = currentChild.boy_friend_name;
-            document.getElementById("girl-friend").value = currentChild.girl_friend_name;
-
-            // Checkboxes
-            document.querySelectorAll(".problem-chips input[type='checkbox']").forEach(cb => {
-                cb.checked = currentChild.problems && currentChild.problems.includes(cb.value);
-            });
+        
+        // Populate mother and father names
+        if (currentUser) {
+            const motherInput = document.getElementById("mother-name");
+            if (motherInput) motherInput.value = currentUser.mother_name || "";
+            
+            const fatherInput = document.getElementById("father-name");
+            if (fatherInput) fatherInput.value = currentUser.father_name || "";
         }
-        showScreen("onboarding-screen");
+        
+        // Populate children fields
+        if (currentChild) {
+            const countInput = document.getElementById("children-count");
+            if (countInput) countInput.value = 1; // currently supporting single child edits
+            
+            generateChildrenFields(); // generate the inputs
+            
+            // Populate child name and age
+            const childNameInput = document.querySelector(".child-name-input");
+            if (childNameInput) childNameInput.value = currentChild.name || "";
+            
+            const childAgeInput = document.querySelector(".child-age-input");
+            if (childAgeInput) childAgeInput.value = currentChild.age || "";
+        }
+        
+        showScreen("profile-setup-screen");
     });
 
     // 8. Subscription Simulation
@@ -1292,56 +1305,69 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     // Flow 3: Save Profile and go to Dashboard
-    window.saveProfile = function(event) {
+    window.saveProfile = async function(event) {
         event.preventDefault();
         triggerHaptic();
         
         // Collect data
-        const motherName = document.getElementById('mother-name') ? document.getElementById('mother-name').value : '';
-        const fatherName = document.getElementById('father-name') ? document.getElementById('father-name').value : '';
+        const motherName = document.getElementById('mother-name') ? document.getElementById('mother-name').value.trim() : '';
+        const fatherName = document.getElementById('father-name') ? document.getElementById('father-name').value.trim() : '';
         
         // Get first child name
         const firstChildInput = document.querySelector('.child-name-input');
-        const childName = firstChildInput ? firstChildInput.value : "Farzandim";
+        const childName = firstChildInput ? firstChildInput.value.trim() : "Farzandim";
         
-        // Update dashboard header dynamically
-        const parentName = motherName || fatherName || "Ota-Ona";
-        
-        // Update header user-name (if it exists)
-        const userNameEl = document.querySelector('.user-name');
-        if (userNameEl) {
-            userNameEl.innerText = `${parentName} & ${childName}`;
-        }
-        
-        // Update dashboard inner elements
-        const dashChildName = document.getElementById('dash-child-name');
-        if (dashChildName) dashChildName.innerText = `${childName} Profili`;
-        
-        const profileParentName = document.getElementById('profile-parent-name');
-        if (profileParentName) profileParentName.innerText = parentName;
-        
-        const profileChildName = document.getElementById('profile-child-name');
-        if (profileChildName) profileChildName.innerText = childName;
-        
-        // Update age if provided
         const firstChildAgeInput = document.querySelector('.child-age-input');
-        if (firstChildAgeInput && firstChildAgeInput.value) {
-            const dashChildAge = document.getElementById('dash-child-age');
-            if (dashChildAge) dashChildAge.innerText = `${firstChildAgeInput.value} yosh`;
-        }
+        const childAge = firstChildAgeInput ? parseInt(firstChildAgeInput.value) || 4 : 4;
         
-        showScreen("dashboard-screen");
-        triggerConfetti();
+        const childProblems = (currentChild && currentChild.problems) ? currentChild.problems : ['behavior'];
+
+        const submitBtn = event.target.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerText;
+        submitBtn.disabled = true;
+        submitBtn.innerText = "Saqlanmoqda...";
+
+        try {
+            const res = await fetch("/api/save_profile", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    telegram_id: telegramId,
+                    name: childName,
+                    age: childAge,
+                    mother_name: motherName,
+                    father_name: fatherName,
+                    problems: childProblems
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                currentUser = data.user;
+                currentChild = data.child;
+                
+                updateUI();
+                
+                // Update dashboard inner elements
+                const dashChildName = document.getElementById('dash-child-name');
+                if (dashChildName) dashChildName.innerText = `${currentChild.name} Profili`;
+                
+                const dashChildAge = document.getElementById('dash-child-age');
+                if (dashChildAge) dashChildAge.innerText = `${currentChild.age} yosh`;
+                
+                showScreen("dashboard-screen");
+                loadDashboardData();
+                triggerConfetti();
+            } else {
+                showAlert(data.error || "Profilni saqlashda xatolik yuz berdi.");
+            }
+        } catch (e) {
+            console.error("Save profile error:", e);
+            showAlert("Tarmoq ulanishida xatolik.");
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerText = originalText;
+        }
     };
-    
-    // Edit Profile Logic
-    const btnEditProfile = document.getElementById('btn-edit-profile');
-    if (btnEditProfile) {
-        btnEditProfile.addEventListener('click', () => {
-            triggerHaptic();
-            showScreen('profile-setup-screen');
-        });
-    }
 
     // Initial Startup flow
     setTimeout(() => {

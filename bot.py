@@ -207,6 +207,8 @@ def api_login():
             "telegram_id": user["telegram_id"],
             "username": user["username"],
             "full_name": user["full_name"],
+            "mother_name": user.get("mother_name", "") or "",
+            "father_name": user.get("father_name", "") or "",
             "subscription_status": user["subscription_status"],
             "subscription_expires_at": user["subscription_expires_at"],
             "bonus_tokens": user["bonus_tokens"],
@@ -231,11 +233,30 @@ def api_save_profile():
     boy_friend = data.get("boy_friend", "")
     girl_friend = data.get("girl_friend", "")
     problems = data.get("problems", [])
+    mother_name = data.get("mother_name", "")
+    father_name = data.get("father_name", "")
     
     child = db.save_child_profile(
-        telegram_id, name, age, favorite_hero, favorite_animal, favorite_toy, boy_friend, girl_friend, problems
+        telegram_id, name, age, favorite_hero, favorite_animal, favorite_toy, boy_friend, girl_friend, problems,
+        mother_name=mother_name, father_name=father_name
     )
-    return jsonify({"success": True, "child": child})
+    user = db.get_user(telegram_id)
+    
+    return jsonify({
+        "success": True, 
+        "child": child,
+        "user": {
+            "telegram_id": user["telegram_id"],
+            "username": user["username"],
+            "full_name": user["full_name"],
+            "mother_name": user.get("mother_name", "") or "",
+            "father_name": user.get("father_name", "") or "",
+            "subscription_status": user["subscription_status"],
+            "subscription_expires_at": user["subscription_expires_at"],
+            "bonus_tokens": user["bonus_tokens"],
+            "referral_code": user["referral_code"]
+        }
+    })
 
 @app.route("/api/get_stories", methods=["GET"])
 def api_get_stories():

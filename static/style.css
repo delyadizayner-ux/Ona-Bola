@@ -72,7 +72,7 @@ body {
 #loader-screen {
     justify-content: center;
     align-items: center;
-    background: linear-gradient(135deg, #FFF9F6 0%, #FFF0EA 100%);
+    background: linear-gradient(135deg, #0D0221 0%, #1A0B3E 100%);
 }
 
 .loader-container {
@@ -99,12 +99,13 @@ body {
 #loader-screen h2 {
     font-size: 28px;
     font-weight: 700;
-    color: var(--primary-dark);
+    color: #FFD700;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
     margin-bottom: 8px;
 }
 
 #loader-screen p {
-    color: var(--text-light);
+    color: rgba(255, 255, 255, 0.7);
     font-size: 15px;
 }
 
@@ -303,13 +304,14 @@ body {
 #login-screen, #profile-setup-screen {
     justify-content: center;
     align-items: center;
-    background: linear-gradient(135deg, #F0F4FD 0%, #D1E1F5 100%);
+    background: linear-gradient(135deg, #0D0221 0%, #1A0B3E 50%, #2D1B69 100%);
 }
 
 .login-icon-wrapper {
     width: 80px;
     height: 80px;
-    background: white;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 50%;
     display: flex;
     justify-content: center;
@@ -326,14 +328,15 @@ body {
 .form-title {
     font-size: 26px;
     font-weight: 800;
-    color: var(--primary-dark);
+    color: #FFD700;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
     margin-bottom: 10px;
     text-align: center;
 }
 
 .form-subtitle {
     font-size: 15px;
-    color: var(--text-color);
+    color: rgba(255, 255, 255, 0.75);
     line-height: 1.5;
     text-align: center;
     margin-bottom: 30px;
@@ -393,39 +396,44 @@ body {
 .input-group label {
     font-size: 13px;
     font-weight: 700;
-    color: var(--primary-dark);
+    color: var(--primary-light);
 }
 
 .input-group input {
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     padding: 14px 16px;
     border-radius: 16px;
     font-size: 15px;
-    color: var(--text-color);
+    color: white;
     transition: all 0.2s;
     font-family: inherit;
+}
+
+.input-group input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
 }
 
 .input-group input:focus {
     outline: none;
     border-color: var(--primary);
-    box-shadow: 0 0 0 4px rgba(255, 142, 122, 0.15);
+    box-shadow: 0 0 10px rgba(255, 142, 122, 0.3);
+    background: rgba(255, 255, 255, 0.12);
 }
 
 .child-field-group {
-    background: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.04);
     border-radius: 20px;
     padding: 16px;
     margin-top: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.8);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 .child-field-title {
     font-size: 14px;
     font-weight: 800;
-    color: var(--primary-dark);
+    color: var(--primary-light);
     margin-top: 0;
     margin-bottom: 12px;
     text-align: left;
@@ -608,33 +616,33 @@ body {
 .gradient-blob {
     position: absolute;
     border-radius: 50%;
-    filter: blur(80px);
-    opacity: 0.35;
+    filter: blur(100px);
+    opacity: 0.5;
     animation: blobFloat 12s ease-in-out infinite alternate;
 }
 
 .blob-1 {
-    width: 300px; height: 300px;
+    width: 450px; height: 450px;
     background: radial-gradient(circle, #FF6B9D 0%, transparent 70%);
-    top: -80px; left: -60px;
+    top: -120px; left: -100px;
     animation-duration: 14s;
 }
 
 .blob-2 {
-    width: 250px; height: 250px;
+    width: 400px; height: 400px;
     background: radial-gradient(circle, #7B68EE 0%, transparent 70%);
-    top: 40%; right: -80px;
+    top: 30%; right: -120px;
     animation-duration: 10s;
     animation-delay: 3s;
 }
 
 .blob-3 {
-    width: 200px; height: 200px;
+    width: 350px; height: 350px;
     background: radial-gradient(circle, #FFD700 0%, transparent 70%);
-    bottom: 10%; left: 20%;
+    bottom: 5%; left: 10%;
     animation-duration: 16s;
     animation-delay: 6s;
-    opacity: 0.2;
+    opacity: 0.3;
 }
 
 @keyframes blobFloat {
@@ -848,36 +856,68 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* 3D Immersive Cards */
+/* 3D Immersive Cards — Dark Glass */
 .card {
-    background: rgba(255, 255, 255, 0.92);
-    border-radius: 28px;
-    padding: 28px 24px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2), 
-                inset 0 1px 0 rgba(255, 255, 255, 1);
-    border: 1px solid rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    padding: 24px 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     position: relative;
-    overflow: visible;
+    overflow: hidden;
 }
 
 /* Gradient top accent line */
 .card::before {
     content: '';
     position: absolute;
-    top: 0; left: 24px; right: 24px;
-    height: 4px;
-    border-radius: 0 0 4px 4px;
+    top: 0; left: 0; right: 0;
+    height: 3px;
     background: linear-gradient(90deg, var(--primary), #FFD700, #7B68EE);
-    opacity: 0.8;
+    opacity: 0.7;
 }
 
 .card:hover {
-    transform: translateY(-4px) scale(1.01);
-    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3), 
-                0 0 20px rgba(255, 215, 0, 0.15);
+    background: rgba(255, 255, 255, 0.12);
+    transform: translateY(-3px);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4), 
+                0 0 20px rgba(123, 104, 238, 0.15);
+}
+
+.card h2 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: white;
+}
+
+.card p, .card label, .card span {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.card .info-row span {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.card .info-row strong {
+    color: white;
+}
+
+.card select {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 14px;
+    font-family: inherit;
+    font-size: 14px;
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
 /* Card type accents */
@@ -893,16 +933,16 @@ body {
     background: linear-gradient(90deg, #7B68EE, #E5D5FF, #FF8E7A);
 }
 
-/* Out-of-bounds Card Hero Decorators */
+/* Card Hero Decorators (inside card) */
 .card-hero-decorator {
     position: absolute;
-    bottom: 0px;
-    right: -30px;
-    width: 160px;
-    opacity: 1;
+    bottom: -5px;
+    right: 5px;
+    width: 120px;
+    opacity: 0.85;
     pointer-events: none;
-    z-index: 20; /* Break out of the card */
-    filter: drop-shadow(-5px 10px 15px rgba(0,0,0,0.3)) brightness(1.1);
+    z-index: 5;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
     transform-origin: bottom center;
     animation: heroBreathe 4s ease-in-out infinite alternate;
 }
@@ -913,10 +953,10 @@ body {
 }
 
 .card-hero-decorator.right-side {
-    top: -20px;
-    right: -10px;
+    top: 10px;
+    right: 10px;
     bottom: auto;
-    width: 120px;
+    width: 90px;
 }
 
 .card-header, .problem-selector, .info-row, .card-header-row, .tasks-list, .btn {
@@ -930,7 +970,7 @@ body {
     font-size: 18px;
     font-weight: 700;
     margin-bottom: 6px;
-    color: var(--text-color);
+    color: white;
 }
 
 .card-header-row {
@@ -1047,16 +1087,16 @@ body {
     display: flex;
     align-items: flex-start;
     gap: 12px;
-    background-color: #FFF;
-    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 14px 16px;
     border-radius: var(--border-radius-sm);
-    border: 1px solid rgba(255, 142, 122, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     transition: var(--transition);
 }
 
 .task-item.completed {
-    opacity: 0.65;
-    background-color: rgba(255, 255, 255, 0.5);
+    background: rgba(101, 196, 102, 0.1);
+    border-color: rgba(101, 196, 102, 0.2);
 }
 
 .task-item input[type="checkbox"] {
@@ -1072,10 +1112,11 @@ body {
 .task-item span {
     font-size: 14px;
     font-weight: 500;
-    color: var(--text-color);
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .task-item.completed span {
+    color: rgba(255, 255, 255, 0.5);
     text-decoration: line-through;
 }
 
@@ -1101,11 +1142,12 @@ body {
 }
 
 .story-card {
-    background-color: #FFF;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-left: 4px solid var(--primary);
     padding: 16px;
     border-radius: var(--border-radius-sm);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
-    border-left: 4px solid var(--primary);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     cursor: pointer;
     transition: var(--transition);
     display: flex;
@@ -1120,12 +1162,13 @@ body {
 .story-card-info h3 {
     font-size: 16px;
     font-weight: 700;
+    color: white;
     margin-bottom: 4px;
 }
 
 .story-card-info p {
     font-size: 12px;
-    color: var(--text-light);
+    color: rgba(255, 255, 255, 0.7);
 }
 
 .story-card-arrow {
@@ -1211,23 +1254,24 @@ body {
 
 .stat-box {
     flex: 1;
-    background-color: #FFF;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     text-align: center;
-    padding: 12px;
+    padding: 14px;
     border-radius: var(--border-radius-sm);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.01);
 }
 
 .stat-box .num {
     display: block;
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--primary-dark);
+    font-size: 22px;
+    font-weight: 800;
+    color: #FFD700;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
 }
 
 .stat-box .label {
     font-size: 11px;
-    color: var(--text-light);
+    color: rgba(255, 255, 255, 0.6);
 }
 
 .ref-link-box {
@@ -1261,8 +1305,8 @@ body {
 
 .plan {
     flex: 1;
-    background-color: #FFF;
-    border: 2px solid rgba(0,0,0,0.04);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: var(--border-radius-sm);
     padding: 16px;
     text-align: center;
@@ -1276,23 +1320,26 @@ body {
 
 .plan.popular {
     border-color: var(--primary);
-    background: linear-gradient(180deg, #FFF 0%, #FFF4F1 100%);
+    background: linear-gradient(180deg, rgba(255, 142, 122, 0.15) 0%, rgba(255, 142, 122, 0.05) 100%);
+    box-shadow: 0 0 20px rgba(255, 142, 122, 0.2);
 }
 
 .plan h3 {
     font-size: 15px;
     font-weight: 700;
+    color: white;
 }
 
 .plan .price {
     font-size: 24px;
     font-weight: 700;
-    color: var(--primary-dark);
+    color: #FFD700;
+    text-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
 }
 
 .plan p {
     font-size: 11px;
-    color: var(--text-light);
+    color: rgba(255, 255, 255, 0.6);
 }
 
 .plan .ribbon {
@@ -1315,7 +1362,7 @@ body {
 
 /* 4. STORY VIEWER SCREEN */
 #story-viewer-screen {
-    background-color: #FFF9F6;
+    background: linear-gradient(135deg, #090216 0%, #150833 100%);
     padding: 0;
     z-index: 150;
     position: fixed;
@@ -1335,8 +1382,8 @@ body {
     padding: 20px;
     position: sticky;
     top: 0;
-    background-color: rgba(255, 249, 246, 0.9);
-    backdrop-filter: blur(10px);
+    background-color: rgba(9, 2, 22, 0.85);
+    backdrop-filter: blur(12px);
     z-index: 10;
 }
 
@@ -1349,14 +1396,14 @@ body {
     font-family: inherit;
     font-size: 14px;
     font-weight: 700;
-    color: var(--primary-dark);
+    color: var(--primary-light);
     cursor: pointer;
 }
 
 .btn-back svg {
     width: 20px;
     height: 20px;
-    fill: var(--primary-dark);
+    fill: var(--primary-light);
 }
 
 .story-magic-stars {
@@ -1372,18 +1419,19 @@ body {
 .story-content-wrapper h1 {
     font-size: 26px;
     font-weight: 700;
-    color: var(--primary-dark);
+    color: white;
     margin-bottom: 6px;
 }
 
 .story-meta {
     font-size: 12px;
-    color: var(--text-light);
+    color: rgba(255, 255, 255, 0.6);
     margin-bottom: 20px;
 }
 
 .audio-player-card {
-    background: linear-gradient(135deg, var(--accent) 0%, #EDF3FF 100%);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: var(--border-radius-sm);
     padding: 14px;
     display: flex;
@@ -1395,13 +1443,14 @@ body {
 .play-btn-circle {
     width: 44px;
     height: 44px;
-    background-color: #FFF;
+    background-color: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
 
 .audio-info {
@@ -1411,34 +1460,39 @@ body {
 .audio-info strong {
     font-size: 14px;
     display: block;
+    color: white;
 }
 
 .audio-info p {
     font-size: 11px;
-    color: var(--text-light);
+    color: rgba(255, 255, 255, 0.6);
 }
 
 .audio-voice-selector select {
+    background: rgba(0, 0, 0, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.15);
     padding: 6px 10px;
     border-radius: 10px;
     font-size: 12px;
-    border-color: rgba(0,0,0,0.05);
 }
 
 .story-body {
     font-size: 17px;
     line-height: 1.8;
-    color: var(--text-color);
+    color: rgba(255, 255, 255, 0.9);
     margin-bottom: 30px;
     text-align: justify;
 }
 
 .story-box {
-    background-color: #FFF;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: var(--border-radius);
     padding: 20px;
     margin-bottom: 20px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.01);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    color: white;
 }
 
 .story-moral h3 {
@@ -1534,8 +1588,8 @@ body {
 
 /* FX Panel */
 .fx-panel {
-    background-color: #FAF6FF;
-    border: 1px solid rgba(138, 92, 255, 0.15);
+    background-color: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: var(--border-radius-sm);
     padding: 14px;
     display: flex;
@@ -1546,7 +1600,7 @@ body {
 .fx-title {
     font-size: 13px;
     font-weight: 700;
-    color: #8A5CFF;
+    color: #FFD700;
 }
 
 .fx-options {
@@ -1555,7 +1609,7 @@ body {
 }
 
 .bg-music-control {
-    border-top: 1px dashed rgba(138, 92, 255, 0.15);
+    border-top: 1px dashed rgba(255, 255, 255, 0.1);
     padding-top: 10px;
     display: flex;
     flex-direction: column;
@@ -1567,7 +1621,7 @@ body {
     align-items: center;
     gap: 10px;
     font-size: 12px;
-    color: var(--text-light);
+    color: rgba(255, 255, 255, 0.6);
 }
 
 .volume-slider-box input[type="range"] {
@@ -1584,6 +1638,7 @@ body {
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
+    color: rgba(255, 255, 255, 0.85);
 }
 
 .switch-container input[type="checkbox"] {
@@ -1627,11 +1682,11 @@ body {
 }
 
 .duet-card {
-    background-color: #FFF;
+    background-color: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: var(--border-radius-sm);
     padding: 14px;
-    border: 1px solid rgba(0,0,0,0.03);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.01);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     transition: var(--transition);
 }
 
@@ -1669,7 +1724,7 @@ body {
 .seg-text {
     font-size: 14px;
     line-height: 1.6;
-    color: var(--text-color);
+    color: rgba(255, 255, 255, 0.9);
     margin-bottom: 12px;
 }
 

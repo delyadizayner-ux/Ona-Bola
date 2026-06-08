@@ -118,6 +118,16 @@ def init_db():
         cursor.execute("ALTER TABLE stories ADD COLUMN problem_key TEXT")
         conn.commit()
         
+    # Check if mother_name and father_name columns exist in users table, if not add them
+    cursor.execute("PRAGMA table_info(users)")
+    user_columns = [col[1] for col in cursor.fetchall()]
+    if user_columns and "mother_name" not in user_columns:
+        cursor.execute("ALTER TABLE users ADD COLUMN mother_name TEXT")
+        conn.commit()
+    if user_columns and "father_name" not in user_columns:
+        cursor.execute("ALTER TABLE users ADD COLUMN father_name TEXT")
+        conn.commit()
+        
     conn.close()
 
 def get_user(telegram_id):
@@ -187,9 +197,31 @@ def get_child_profile(telegram_id):
     conn.close()
     return child
 
-def save_child_profile(telegram_id, name, age, favorite_hero, favorite_animal, favorite_toy, boy_friend_name, girl_friend_name, problems):
+def save_child_profile(telegram_id, name, age, favorite_hero, favorite_animal, favorite_toy, boy_friend_name, girl_friend_name, problems, mother_name=None, father_name=None):
     conn = get_db()
     cursor = conn.cursor()
+    
+    # Update parent names in users table if provided
+    if mother_name or father_name:
+        cursor.execute("SELECT mother_name, father_name, full_name FROM users WHERE telegram_id = ?", (telegram_id,))
+        user_row = cursor.fetchone()
+        
+        curr_m = mother_name if mother_name else (user_row['mother_name'] if user_row else None)
+        curr_f = father_name if father_name else (user_row['father_name'] if user_row else None)
+        
+        full_name = ""
+        if curr_m and curr_f:
+            full_name = f"{curr_m} & {curr_f}"
+        elif curr_m:
+            full_name = curr_m
+        elif curr_f:
+            full_name = curr_f
+            
+        cursor.execute("""
+        UPDATE users 
+        SET mother_name = ?, father_name = ?, full_name = ?
+        WHERE telegram_id = ?
+        """, (curr_m, curr_f, full_name, telegram_id))
     
     # Check if user has child profile already
     cursor.execute("SELECT id FROM children WHERE user_id = ?", (telegram_id,))
