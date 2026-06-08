@@ -124,6 +124,9 @@ body {
     scroll-snap-type: y mandatory;
     scroll-behavior: smooth;
     overscroll-behavior-y: none;
+    /* Move background here to fix mix-blend-mode stacking context isolation */
+    background: linear-gradient(180deg, #F0FDF4 0%, #D1F5DF 100%); /* Initial */
+    transition: background 1.5s ease-in-out;
 }
 
 .vertical-scroll-container::-webkit-scrollbar {
@@ -142,15 +145,7 @@ body {
     overflow: hidden;
 }
 
-/* Dynamic Background Layer */
-#dynamic-bg {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100vw; height: 100vh;
-    z-index: 0;
-    background: linear-gradient(180deg, #F0FDF4 0%, #D1F5DF 100%); /* Initial */
-    transition: background 1.5s ease-in-out;
-}
+/* Backgrounds managed by JS */
 
 .scene-content {
     text-align: center;
@@ -288,11 +283,7 @@ body {
 .float-animation { animation: breathePremium 5s ease-in-out infinite; }
 .walk-animation { animation: swayPremium 4s ease-in-out infinite; }
 
-/* In-view triggers for JS */
-.is-visible .hero-wrapper {
-    animation: smoothZoom 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-    opacity: 0;
-}
+/* All .is-visible scroll animations removed per user request */
 
 /* Buttons */
 .btn-skip {

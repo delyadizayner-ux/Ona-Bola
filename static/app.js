@@ -1214,7 +1214,7 @@ document.addEventListener("DOMContentLoaded", () => {
             threshold: 0.5
         };
 
-        const dynamicBg = document.getElementById('dynamic-bg');
+        const scrollContainer = document.getElementById('scroll-container');
 
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -1223,9 +1223,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     // Add haptic feedback when snapping to a new section
                     triggerHaptic();
                     
-                    // Update dynamic background color
-                    if (dynamicBg && entry.target.dataset.color) {
-                        dynamicBg.style.background = entry.target.dataset.color;
+                    // Update scroll container background color directly to fix blend mode isolation
+                    if (scrollContainer && entry.target.dataset.color) {
+                        scrollContainer.style.background = entry.target.dataset.color;
                     }
                 }
             });
