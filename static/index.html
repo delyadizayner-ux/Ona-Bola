@@ -21,72 +21,53 @@
                 <h2>Ona & Bola</h2>
                 <p>Sehrli olamga yuklanmoqda...</p>
             </div>
-        </div>
-
-        <!-- 2. CAROUSEL ONBOARDING SCREEN -->
+        </div>        <!-- 2. NEW VERTICAL SCROLL ONBOARDING -->
         <div id="carousel-screen" class="screen">
-            <div class="carousel-container">
-                <div class="carousel-track" id="carousel-track">
-                    <!-- Slide 1: Emotion -->
-                    <div class="carousel-slide slide-1">
-                        <div class="slide-image">
-                            <img src="img/hero1.png" onerror="this.outerHTML='<div class=\'fallback-emoji\'>✨🍌</div>'" alt="" style="width:100%; height:100%; object-fit:contain; border-radius:50%;">
+            <div class="vertical-scroll-container" id="scroll-container">
+                <!-- Screen 1: Welcome -->
+                <section class="scroll-section section-1">
+                    <div class="scene-content">
+                        <h2>Sebarga olamiga<br>xush kelibsiz.</h2>
+                        <div class="hero-wrapper">
+                            <img src="img/hero1.png" class="hero-img float-animation" alt="Hero">
                         </div>
-                        <h2>Oyi, men tez o'syapman...</h2>
-                        <p>Mening kichik qo'llarim tez orada kattaradi, lekin sizning mehringiz va ovozingiz qalbimda mangu qoladi.</p>
-                    </div>
-                    <!-- Slide 2: Reflection -->
-                    <div class="carousel-slide slide-2">
-                        <div class="slide-image">
-                            <img src="img/hero2.png" onerror="this.outerHTML='<div class=\'fallback-emoji\'>🦸‍♂️👑</div>'" alt="" style="width:100%; height:100%; object-fit:contain; border-radius:50%;">
+                        <p>Do'stlik va omad sarguzashtiga otlaning!</p>
+                        
+                        <div class="scroll-indicator">
+                            <div class="chevron-down"></div>
                         </div>
-                        <h2>Vaqtni ortga qaytarib bo'lmaydi</h2>
-                        <p>Bugun men bilan o'tkazgan har bir daqiqangiz, ertaga mening butun dunyoyimga aylanadi.</p>
                     </div>
-                    <!-- Slide 3: Gratitude -->
-                    <div class="carousel-slide slide-3">
-                        <div class="slide-image">
-                            <img src="img/hero3.png" onerror="this.outerHTML='<div class=\'fallback-emoji\'>📱🙅‍♀️</div>'" alt="" style="width:100%; height:100%; object-fit:contain; border-radius:50%;">
+                    <button class="btn-skip" onclick="loginUser()">O'TKAZIB YUBORISH</button>
+                </section>
+
+                <!-- Screen 2: Explore -->
+                <section class="scroll-section section-2">
+                    <div class="scene-content">
+                        <h2>Kashf eting va<br>yarating.</h2>
+                        <p>Xazinalar toping, do'stlar orttiring<br>va mo'jizalar yarating!</p>
+                        
+                        <div class="hero-wrapper hero-walking">
+                            <img src="img/hero4.png" class="hero-img walk-animation" alt="Hero">
                         </div>
-                        <h2>Borligingiz - eng katta baxtim</h2>
-                        <p>Meni borimcha yaxshi ko'rganingiz, har tun yonimda bo'lib ertak o'qib berganingiz uchun rahmat, Oyijon!</p>
+                        
+                        <div class="scroll-hint">Davom etish uchun pastga suring.</div>
                     </div>
-                    <!-- Slide 4: Attentiveness -->
-                    <div class="carousel-slide slide-4">
-                        <div class="slide-image">
-                            <img src="img/hero4.png" onerror="this.outerHTML='<div class=\'fallback-emoji\'>🎙️👨‍👩‍👦</div>'" alt="" style="width:100%; height:100%; object-fit:contain; border-radius:50%;">
+                </section>
+
+                <!-- Screen 3: Journey Begins -->
+                <section class="scroll-section section-3">
+                    <div class="scene-content">
+                        <div class="hero-wrapper hero-away">
+                            <img src="img/hero5.png" class="hero-img float-animation" alt="Hero">
                         </div>
-                        <h2>Har bir so'zingiz - bir qanot</h2>
-                        <p>Sizning dilingizdan chiqqan har bir o'git, meni hayotdagi yomonliklardan asraydi.</p>
+                        <h2>Sayohat boshlanadi.</h2>
+                        <p>Buyuk sarguzashtingizni boshlash uchun<br>pastdagi tugmani bosing.</p>
+                        
+                        <button class="btn-start-adventure" onclick="loginUser()">SARGUZASHTNI BOSHLASH</button>
                     </div>
-                    <!-- Slide 5: Future -->
-                    <div class="carousel-slide slide-5">
-                        <div class="slide-image">
-                            <img src="img/hero5.png" onerror="this.outerHTML='<div class=\'fallback-emoji\'>🚀</div>'" alt="" style="width:100%; height:100%; object-fit:contain; border-radius:50%;">
-                        </div>
-                        <h2>Kelajak qahramoni</h2>
-                        <p>Bugun ekkan mehr urug'laringiz, ertaga mening porloq kelajagimni yoritadi. Keling, bu sehrli yo'lni birga boshlaymiz!</p>
-                    </div>
-                </div>
-                
-                <div class="carousel-controls">
-                    <div class="carousel-dots" id="carousel-dots">
-                        <span class="dot active"></span>
-                        <span class="dot"></span>
-                        <span class="dot"></span>
-                        <span class="dot"></span>
-                        <span class="dot"></span>
-                    </div>
-                    
-                    <button class="btn btn-secondary btn-carousel-next" id="btn-carousel-next">Keyingisi ➡️</button>
-                    
-                    <button class="btn btn-primary btn-telegram-login hidden" id="btn-telegram-login">
-                        <svg viewBox="0 0 24 24" width="20" height="20" style="margin-right:8px; fill:white; display:inline-block; vertical-align:middle;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.62-.2-1.12-.31-1.1-.66.01-.18.27-.36.78-.55 3.07-1.34 5.11-2.22 6.13-2.65 2.91-1.21 3.52-1.42 3.92-1.43.09 0 .28.02.38.1.09.07.12.18.13.28 0 .04.01.12 0 .21z"/></svg>
-                        Telegram orqali kirish
-                    </button>
-                </div>
+                </section>
             </div>
-        </div>
+        </div></div>
 
         <!-- 3. DASHBOARD SCREEN -->
         <div id="dashboard-screen" class="screen">
