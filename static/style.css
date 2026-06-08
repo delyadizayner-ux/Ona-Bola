@@ -151,32 +151,38 @@ body {
     z-index: 2;
     padding: 20px;
     width: 100%;
-    max-width: 400px;
+    max-width: 450px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .scroll-section h2 {
-    font-size: 32px;
+    font-size: 36px;
     font-weight: 800;
     color: var(--primary-dark);
-    margin-bottom: 20px;
-    line-height: 1.2;
+    margin-bottom: 10px;
+    line-height: 1.1;
 }
 
 .scroll-section p {
-    font-size: 16px;
+    font-size: 17px;
     color: var(--text-color);
     line-height: 1.5;
-    margin-top: 20px;
+    margin-top: 15px;
+    margin-bottom: 25px;
     font-weight: 500;
+    padding: 0 15px;
 }
 
 .hero-wrapper {
     position: relative;
-    width: 250px;
-    height: 250px;
+    width: 90vw;
+    max-width: 380px;
+    aspect-ratio: 1/1;
     margin: 0 auto;
-    background: radial-gradient(circle, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 70%);
-    border-radius: 50%;
+    /* Removed the weird radial gradient that made a square */
 }
 
 .hero-img {
@@ -185,6 +191,9 @@ body {
     object-fit: contain;
     position: relative;
     z-index: 2;
+    /* PROFESSIONAL DESIGN TRICK: Multiply blends the white background into the color background seamlessly! */
+    mix-blend-mode: multiply;
+    filter: contrast(1.05) saturate(1.1);
 }
 
 .fallback-emoji {
