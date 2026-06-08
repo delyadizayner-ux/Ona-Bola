@@ -424,3 +424,11 @@ def get_voice_samples_count(telegram_id):
     for r in rows:
         result[r["role"]] = r["cnt"]
     return result
+
+def delete_voice_samples(telegram_id):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM voice_samples WHERE telegram_id = ?", (telegram_id,))
+    conn.commit()
+    conn.close()
+    return True

@@ -119,6 +119,20 @@ document.addEventListener("DOMContentLoaded", () => {
                 
                 if (data.samples_count) {
                     updateVoiceCloneStatus(data.samples_count);
+                    
+                    const m = data.samples_count.mother || 0;
+                    const f = data.samples_count.father || 0;
+                    if (m >= 3 && f >= 3) {
+                        currentDuoIndex = 6;
+                    } else if (m < 3) {
+                        currentDuoIndex = m;
+                    } else {
+                        currentDuoIndex = 3 + f;
+                    }
+                    updateDuoWizard();
+                } else {
+                    currentDuoIndex = 0;
+                    updateDuoWizard();
                 }
 
                 if (!currentUser.mother_name && !currentUser.father_name && !data.child) {
@@ -319,6 +333,8 @@ document.addEventListener("DOMContentLoaded", () => {
             loadTasksFull();
         } else if (tabId === "tab-profile") {
             loadReferralStats();
+        } else if (tabId === "tab-dubbing") {
+            updateDuoWizard();
         }
     }
 
@@ -543,6 +559,24 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentlyPlayingSources = [];
     let isMasterPlaying = false;
     let micStream = null;
+
+    // Duolingo Style Dubbing Wizard States
+    let duoSentences = [
+        { role: "mother", label: "ONA: 1-Gap (Kirish)", text: "Bir bor ekan, bir yo'q ekan, qadim zamonda bir sehrli o'rmon bo'lgan ekan." },
+        { role: "mother", label: "ONA: 2-Gap (Sarguzasht)", text: "Bu o'rmonda yashovchi kichik ayiqcha har kuni yangi sarguzashtlarni izlar edi." },
+        { role: "mother", label: "ONA: 3-Gap (Xulosa)", text: "U yulduzli tunda shirin uyquga ketishdan oldin, oyisining ertaklarini tinglardi." },
+        { role: "father", label: "OTA: 1-Gap (Kirish)", text: "Jasur botir o'zining sehrli qalqoni bilan doim bolalarni himoya qilar edi." },
+        { role: "father", label: "OTA: 2-Gap (Sarguzasht)", text: "Farzandim, sen juda kuchli, aqlli va mehribon bola bo'lib ulg'aymoqdasan." },
+        { role: "father", label: "OTA: 3-Gap (Xulosa)", text: "Biz sen bilan har doim faxrlanamiz va har qadamda seni qo'llab-quvvatlaymiz." }
+    ];
+    let currentDuoIndex = 0;
+    let duoRecorder = null;
+    let duoChunks = [];
+    let duoAudioBlob = null;
+    let duoAudioUrl = null;
+    let duoMicStream = null;
+    let duoWaveInterval = null;
+    let isDuoRecording = false;
 
     // 3D Book States
     let currentPage = 0;
@@ -1050,6 +1084,256 @@ document.addEventListener("DOMContentLoaded", () => {
         
         return audioBuffer.duration;
     }
+
+    // === DUOLINGO DUBBING WIZARD LOGIC ===
+    function startDuoWaveformAnimation() {
+        const bars = document.querySelectorAll("#duo-waveform .wave-bar");
+        if (duoWaveInterval) clearInterval(duoWaveInterval);
+        
+        document.getElementById("duo-waveform").classList.add("active");
+        
+        duoWaveInterval = setInterval(() => {
+            bars.forEach(bar => {
+                const randomHeight = Math.floor(Math.random() * 80) + 10; // 10% to 90%
+                bar.style.height = `${randomHeight}%`;
+            });
+        }, 100);
+    }
+
+    function stopDuoWaveformAnimation() {
+        if (duoWaveInterval) {
+            clearInterval(duoWaveInterval);
+            duoWaveInterval = null;
+        }
+        document.getElementById("duo-waveform").classList.remove("active");
+        const bars = document.querySelectorAll("#duo-waveform .wave-bar");
+        bars.forEach(bar => {
+            bar.style.height = "15%"; // reset to small line
+        });
+    }
+
+    function updateDuoWizard() {
+        if (currentUser) {
+            document.getElementById("duo-stat-tokens").innerText = currentUser.bonus_tokens;
+        }
+        
+        const homePointsEl = document.getElementById("home-stars-count");
+        const duoPointsEl = document.getElementById("duo-stat-points");
+        if (homePointsEl && duoPointsEl) {
+            duoPointsEl.innerText = homePointsEl.innerText.replace(/[^0-9]/g, "") || "0";
+        }
+
+        if (currentDuoIndex >= 6) {
+            document.getElementById("duo-wizard-active-step").classList.add("hidden");
+            document.getElementById("duo-wizard-success-step").classList.remove("hidden");
+            
+            document.getElementById("duo-progress-fill").style.width = "100%";
+            document.getElementById("duo-step-text").innerText = "Tashxis: 6 / 6";
+            return;
+        }
+
+        document.getElementById("duo-wizard-active-step").classList.remove("hidden");
+        document.getElementById("duo-wizard-success-step").classList.add("hidden");
+
+        const step = duoSentences[currentDuoIndex];
+        
+        const speakerBadge = document.getElementById("duo-speaker-badge");
+        if (step.role === "mother") {
+            speakerBadge.innerText = `👩 ONA: ${currentDuoIndex + 1}-Gap (${currentDuoIndex === 2 ? 'Shivirlash' : 'Mehrli'})`;
+            speakerBadge.style.backgroundColor = "rgba(229, 213, 255, 0.2)";
+            speakerBadge.style.color = "#D2B4FF";
+        } else {
+            speakerBadge.innerText = `👨 OTA: ${currentDuoIndex - 2}-Gap (Xotirjam)`;
+            speakerBadge.style.backgroundColor = "rgba(161, 227, 212, 0.2)";
+            speakerBadge.style.color = "#A1E3D4";
+        }
+
+        document.getElementById("duo-sentence-text").innerText = `"${step.text}"`;
+
+        const progressPercent = ((currentDuoIndex) / 6) * 100;
+        document.getElementById("duo-progress-fill").style.width = `${progressPercent || 16.6}%`;
+        document.getElementById("duo-step-text").innerText = `Gap: ${currentDuoIndex + 1} / 6`;
+
+        const heroImg = document.getElementById("duo-character-img");
+        if (heroImg) {
+            const heroNum = (currentDuoIndex % 5) + 1;
+            heroImg.src = `img/hero${heroNum}.png`;
+        }
+
+        duoAudioBlob = null;
+        duoAudioUrl = null;
+        document.getElementById("btn-duo-next").disabled = true;
+        document.getElementById("duo-preview-row").classList.add("hidden");
+        
+        const waveContainer = document.getElementById("duo-waveform");
+        if (waveContainer) {
+            waveContainer.classList.remove("active");
+        }
+    }
+
+    async function handleDuoRecClick() {
+        triggerHaptic();
+        const recBtn = document.getElementById("btn-duo-rec");
+
+        if (!isDuoRecording) {
+            try {
+                if (!duoMicStream) {
+                    duoMicStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                }
+                
+                duoChunks = [];
+                duoRecorder = new MediaRecorder(duoMicStream);
+                
+                duoRecorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) duoChunks.push(e.data);
+                };
+                
+                duoRecorder.onstop = () => {
+                    duoAudioBlob = new Blob(duoChunks, { type: duoRecorder.mimeType || 'audio/webm' });
+                    duoAudioUrl = URL.createObjectURL(duoAudioBlob);
+                    
+                    document.getElementById("duo-preview-row").classList.remove("hidden");
+                    document.getElementById("btn-duo-next").disabled = false;
+                };
+
+                duoRecorder.start();
+                isDuoRecording = true;
+                
+                recBtn.classList.add("recording");
+                startDuoWaveformAnimation();
+                
+            } catch (e) {
+                console.error("Mic access error:", e);
+                showAlert("Mikrofonni faollashtirishda xatolik yuz berdi. Ruxsat berilganligini tekshiring.");
+            }
+        } else {
+            if (duoRecorder && duoRecorder.state !== "inactive") {
+                duoRecorder.stop();
+            }
+            isDuoRecording = false;
+            recBtn.classList.remove("recording");
+            stopDuoWaveformAnimation();
+        }
+    }
+
+    async function handleDuoNextClick() {
+        triggerHaptic();
+        if (!duoAudioBlob) return;
+
+        const nextBtn = document.getElementById("btn-duo-next");
+        const originalText = nextBtn.innerHTML;
+        nextBtn.disabled = true;
+        nextBtn.innerHTML = `Yuklanmoqda...`;
+
+        const step = duoSentences[currentDuoIndex];
+        const role = step.role;
+        
+        let segmentId = 1;
+        if (currentDuoIndex === 1 || currentDuoIndex === 4) {
+            segmentId = 2;
+        } else if (currentDuoIndex === 2 || currentDuoIndex === 5) {
+            segmentId = 3;
+        }
+
+        const formData = new FormData();
+        formData.append("voice", duoAudioBlob, `duo_${role}_seg${segmentId}.webm`);
+        formData.append("telegram_id", telegramId);
+        formData.append("role", role);
+        formData.append("segment_id", segmentId);
+
+        try {
+            const response = await fetch("/api/upload_voice", {
+                method: "POST",
+                body: formData
+            });
+            const data = await response.json();
+            if (data.success) {
+                if (data.samples_count) {
+                    updateVoiceCloneStatus(data.samples_count);
+                }
+                
+                currentDuoIndex++;
+                updateDuoWizard();
+            } else {
+                showAlert(data.error || "Ovoz namunasini yuklashda xatolik yuz berdi.");
+            }
+        } catch (e) {
+            console.error("Duo upload failed:", e);
+            showAlert("Tarmoq ulanishida xatolik yuz berdi. Iltimos qaytadan urinib ko'ring.");
+        } finally {
+            nextBtn.disabled = false;
+            nextBtn.innerHTML = originalText;
+        }
+    }
+
+    async function handleDuoResetClick() {
+        triggerHaptic();
+        if (!confirm("Ovoz namunalarini to'liq o'chirib, boshidan yozishni xohlaysizmi?")) return;
+
+        const resetBtn = document.getElementById("btn-duo-reset");
+        const originalText = resetBtn.innerHTML;
+        resetBtn.disabled = true;
+        resetBtn.innerHTML = "O'chirilmoqda...";
+
+        try {
+            const res = await fetch("/api/reset_voice", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ telegram_id: telegramId })
+            });
+            const data = await res.json();
+            if (data.success) {
+                currentDuoIndex = 0;
+                updateVoiceCloneStatus({ mother: 0, father: 0 });
+                updateDuoWizard();
+                showAlert("Barcha ovoz namunalari o'chirildi. Endi boshidan yozishingiz mumkin.");
+            } else {
+                showAlert("Reset qilishda xatolik yuz berdi.");
+            }
+        } catch (e) {
+            console.error("Reset failed:", e);
+            showAlert("Tarmoq xatoligi.");
+        } finally {
+            resetBtn.disabled = false;
+            resetBtn.innerHTML = originalText;
+        }
+    }
+
+    // Setup Duolingo Dubbing Wizard listeners
+    document.getElementById("btn-duo-rec").addEventListener("click", () => {
+        handleDuoRecClick();
+    });
+
+    document.getElementById("btn-duo-next").addEventListener("click", () => {
+        handleDuoNextClick();
+    });
+
+    document.getElementById("btn-duo-play").addEventListener("click", () => {
+        triggerHaptic();
+        if (duoAudioUrl) {
+            const aud = new Audio(duoAudioUrl);
+            aud.play();
+        }
+    });
+
+    document.getElementById("btn-duo-rerecord").addEventListener("click", () => {
+        triggerHaptic();
+        duoAudioBlob = null;
+        duoAudioUrl = null;
+        document.getElementById("btn-duo-next").disabled = true;
+        document.getElementById("duo-preview-row").classList.add("hidden");
+    });
+
+    document.getElementById("link-duo-skip").addEventListener("click", (e) => {
+        e.preventDefault();
+        triggerHaptic();
+        currentDuoIndex++;
+        updateDuoWizard();
+    });
+
+    document.getElementById("btn-duo-reset").addEventListener("click", () => {
+        handleDuoResetClick();
+    });
 
     // Setup Dubbing listeners
     document.querySelectorAll(".btn-start-rec").forEach(btn => {

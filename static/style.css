@@ -812,7 +812,7 @@ body {
     color: rgba(255,255,255,0.5);
     gap: 4px;
     cursor: pointer;
-    width: 25%;
+    width: 20%;
     transition: var(--transition);
 }
 
@@ -2050,4 +2050,271 @@ body {
     height: 100%;
     width: 0%;
     transition: width 0.4s ease-out;
+}
+
+/* === DUOLINGO STYLE DUBBING WIZARD === */
+.duo-header-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.duo-stat-item {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.duo-progress-container-outer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.duo-progress-container {
+    flex: 1;
+    height: 16px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.duo-progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #FF9F00 0%, #FF6B00 100%);
+    border-radius: 8px;
+    width: 16.6%;
+    transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 0 8px rgba(255, 159, 0, 0.6);
+}
+
+.duo-step-text {
+    font-size: 13px;
+    font-weight: 700;
+    color: white;
+    white-space: nowrap;
+}
+
+.duo-sentence-card {
+    background: rgba(255, 255, 255, 0.07);
+    border-radius: 24px;
+    padding: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    margin-bottom: 25px;
+    position: relative;
+}
+
+.duo-speaker-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+}
+
+.duo-sentence-text {
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
+    line-height: 1.5;
+    text-align: center;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.duo-wave-pill {
+    background: rgba(123, 104, 238, 0.12);
+    border: 1.5px solid rgba(123, 104, 238, 0.35);
+    border-radius: 50px;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 32px rgba(123, 104, 238, 0.15), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.duo-waveform {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    height: 36px;
+    flex: 1;
+    padding: 0 10px;
+}
+
+.wave-bar {
+    width: 4px;
+    height: 15%;
+    background: linear-gradient(180deg, #A88BEB 0%, #7B68EE 100%);
+    border-radius: 2px;
+    transition: height 0.15s ease-out;
+}
+
+/* Animate wave bars when recording is active */
+.duo-waveform.active .wave-bar {
+    background: linear-gradient(180deg, #FF4B91 0%, #FF9EAA 100%);
+    box-shadow: 0 0 8px rgba(255, 75, 145, 0.5);
+}
+
+.duo-rec-btn {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, #7B68EE 0%, #5E4AE3 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(123, 104, 238, 0.4);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.duo-rec-btn:hover {
+    transform: scale(1.05);
+}
+
+.duo-rec-btn.recording {
+    background: linear-gradient(135deg, #FF3B30 0%, #FF2D55 100%);
+    box-shadow: 0 0 20px rgba(255, 59, 48, 0.6);
+    animation: duoPulseRec 1.5s infinite alternate;
+}
+
+@keyframes duoPulseRec {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.1); }
+}
+
+.duo-preview-row {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.duo-landscape-scene {
+    height: 140px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 24px;
+    background: linear-gradient(180deg, #1C0A35 0%, #2E1B4E 100%);
+    border: 1px solid rgba(255,255,255,0.08);
+    margin-bottom: 25px;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+}
+
+.duo-hills {
+    position: absolute;
+    bottom: -10px;
+    left: -10%;
+    width: 120%;
+    height: 60px;
+    background: linear-gradient(180deg, #5C8374 0%, #1B4242 100%);
+    border-radius: 50% 50% 0 0;
+    opacity: 0.85;
+}
+
+.duo-character {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    z-index: 2;
+}
+
+.duo-next-btn {
+    background: linear-gradient(135deg, #FF8E7A 0%, #FF5A36 100%) !important;
+    box-shadow: 0 6px 20px rgba(255, 90, 54, 0.4) !important;
+    text-transform: uppercase;
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.duo-next-btn:disabled {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: rgba(255, 255, 255, 0.3) !important;
+    box-shadow: none !important;
+    cursor: not-allowed;
+}
+
+.duo-skip-box {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.duo-skip-link {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 13px;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.duo-skip-link:hover {
+    color: white;
+    text-decoration: underline;
+}
+
+.duo-success-container {
+    text-align: center;
+    padding: 40px 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 28px;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 15px 45px rgba(0,0,0,0.3);
+}
+
+.success-badge-glow {
+    font-size: 64px;
+    margin-bottom: 20px;
+    display: inline-block;
+    animation: duoSuccessFloat 2.5s ease-in-out infinite alternate;
+    text-shadow: 0 0 20px rgba(255,215,0,0.6);
+}
+
+@keyframes duoSuccessFloat {
+    0% { transform: translateY(0) scale(1); }
+    100% { transform: translateY(-10px) scale(1.05); }
+}
+
+.duo-success-container h2 {
+    font-size: 24px;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 12px;
+}
+
+.duo-success-container p {
+    font-size: 15px;
+    color: rgba(255,255,255,0.8);
+    line-height: 1.5;
+    margin-bottom: 8px;
+}
+
+.duo-success-container p.sub-desc {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 20px;
 }

@@ -228,6 +228,10 @@
                     <svg viewBox="0 0 24 24"><path d="M12 11.55C9.64 9.35 6.48 8 3 8v11c3.48 0 6.64 1.35 9 3.55 2.36-2.2 5.52-3.55 9-3.55V8c-3.48 0-6.64 1.35-9 3.55zM12 8c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3z"/></svg>
                     Ertaklar
                 </button>
+                <button class="tab-btn" data-tab="tab-dubbing">
+                    <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
+                    Ovoz yozish
+                </button>
                 <button class="tab-btn" data-tab="tab-tasks">
                     <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
                     Vazifalar
@@ -292,6 +296,69 @@
                             <span class="icon">📖</span>
                             <p>Hali hech qanday ertak yaratilmagan. Birinchi ertakni yaratib ko'ring!</p>
                         </div>
+                    </div>
+                </div>
+
+                <div id="tab-dubbing" class="tab-content">
+                    <div class="duo-header-stats">
+                        <div class="duo-stat-item"><span class="icon">✨</span> <span id="duo-stat-tokens">3</span> ta bepul</div>
+                        <div class="duo-stat-item"><span class="icon">⭐</span> <span id="duo-stat-points">0</span> ball</div>
+                        <div class="duo-stat-item"><span class="icon">❤️</span> <span>3</span> ta imkon</div>
+                    </div>
+
+                    <div class="duo-progress-container-outer">
+                        <div class="duo-progress-container">
+                            <div class="duo-progress-bar-fill" id="duo-progress-fill" style="width: 16.6%;"></div>
+                        </div>
+                        <div class="duo-step-text" id="duo-step-text">Gap: 1 / 6</div>
+                    </div>
+
+                    <div id="duo-wizard-active-step">
+                        <div class="duo-sentence-card">
+                            <div class="duo-speaker-badge" id="duo-speaker-badge">ONA: 1-Gap (Shivirlash)</div>
+                            <h1 class="duo-sentence-text" id="duo-sentence-text">"Bir bor ekan, bir yo'q ekan, qadim zamonda bir sehrli o'rmon bo'lgan ekan."</h1>
+                        </div>
+
+                        <div class="duo-wave-pill">
+                            <div class="duo-waveform" id="duo-waveform">
+                                <div class="wave-bar bar-1"></div>
+                                <div class="wave-bar bar-2"></div>
+                                <div class="wave-bar bar-3"></div>
+                                <div class="wave-bar bar-4"></div>
+                                <div class="wave-bar bar-5"></div>
+                                <div class="wave-bar bar-6"></div>
+                                <div class="wave-bar bar-7"></div>
+                                <div class="wave-bar bar-8"></div>
+                                <div class="wave-bar bar-9"></div>
+                                <div class="wave-bar bar-10"></div>
+                            </div>
+                            <button class="duo-rec-btn" id="btn-duo-rec" type="button">
+                                <svg viewBox="0 0 24 24" width="24" height="24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z" fill="white"/></svg>
+                            </button>
+                        </div>
+
+                        <div class="duo-preview-row hidden" id="duo-preview-row">
+                            <button class="btn btn-secondary btn-sm" id="btn-duo-play" type="button">▶️ Eshitish</button>
+                            <button class="btn btn-secondary btn-sm" id="btn-duo-rerecord" type="button" style="background-color: rgba(255, 59, 48, 0.15); color: #FF3B30;">🗑️ Qayta yozish</button>
+                        </div>
+
+                        <div class="duo-landscape-scene">
+                            <div class="duo-hills"></div>
+                            <img src="img/hero2.png" class="duo-character walk-animation" id="duo-character-img" alt="Hero">
+                        </div>
+
+                        <button class="btn btn-primary duo-next-btn" id="btn-duo-next" type="button" disabled>Keyingi gap ➡️</button>
+                        <div class="duo-skip-box">
+                            <a href="#" class="duo-skip-link" id="link-duo-skip">Hozircha o'tkazib yuborish</a>
+                        </div>
+                    </div>
+
+                    <div id="duo-wizard-success-step" class="hidden duo-success-container">
+                        <div class="success-badge-glow">👑🎙️✨</div>
+                        <h2>Ovoz Klonlandi!</h2>
+                        <p>Tabriklaymiz! Ota va onaning ovoz namunalari to'liq yozib olindi va AI modeli faollashtirildi.</p>
+                        <p class="sub-desc">Endi yangi AI ertaklar sizning mehli va shirin ovozingizda yangraydi.</p>
+                        <button class="btn btn-primary mt-20" id="btn-duo-reset" type="button">Ovozlarni qayta yozish</button>
                     </div>
                 </div>
 

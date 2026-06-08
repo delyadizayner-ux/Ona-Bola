@@ -418,6 +418,16 @@ def api_upload_voice():
         "samples_count": counts
     })
 
+@app.route("/api/reset_voice", methods=["POST"])
+def api_reset_voice():
+    data = request.json or {}
+    telegram_id = data.get("telegram_id")
+    if not telegram_id:
+        return jsonify({"error": "Foydalanuvchi aniqlanmadi"}), 400
+        
+    db.delete_voice_samples(telegram_id)
+    return jsonify({"success": True})
+
 @app.route("/api/debug", methods=["GET"])
 def api_debug():
     debug_info = {}

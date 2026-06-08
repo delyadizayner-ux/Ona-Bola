@@ -83,5 +83,28 @@ class TestOnaBolaBackend(unittest.TestCase):
         matching_task = next(t for t in updated_tasks if t["id"] == task_id)
         self.assertEqual(matching_task["is_completed"], 1)
 
+    def test_voice_samples(self):
+        telegram_id = 999999
+        # Initial count should be 0 for both roles
+        counts = db.get_voice_samples_count(telegram_id)
+        self.assertEqual(counts["mother"], 0)
+        self.assertEqual(counts["father"], 0)
+
+        # Save sample
+        db.save_voice_sample(telegram_id, "mother", "uploads/voices/test_m1.webm")
+        db.save_voice_sample(telegram_id, "mother", "uploads/voices/test_m2.webm")
+        db.save_voice_sample(telegram_id, "father", "uploads/voices/test_f1.webm")
+
+        # Check count
+        counts = db.get_voice_samples_count(telegram_id)
+        self.assertEqual(counts["mother"], 2)
+        self.assertEqual(counts["father"], 1)
+
+        # Delete samples
+        db.delete_voice_samples(telegram_id)
+        counts = db.get_voice_samples_count(telegram_id)
+        self.assertEqual(counts["mother"], 0)
+        self.assertEqual(counts["father"], 0)
+
 if __name__ == "__main__":
     unittest.main()
