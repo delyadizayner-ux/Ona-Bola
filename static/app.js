@@ -1214,12 +1214,19 @@ document.addEventListener("DOMContentLoaded", () => {
             threshold: 0.5
         };
 
+        const dynamicBg = document.getElementById('dynamic-bg');
+
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('is-visible');
                     // Add haptic feedback when snapping to a new section
                     triggerHaptic();
+                    
+                    // Update dynamic background color
+                    if (dynamicBg && entry.target.dataset.color) {
+                        dynamicBg.style.background = entry.target.dataset.color;
+                    }
                 }
             });
         }, observerOptions);
