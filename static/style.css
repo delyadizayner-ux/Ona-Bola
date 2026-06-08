@@ -383,13 +383,16 @@ body {
 .input-row {
     display: flex;
     gap: 12px;
+    width: 100%;
 }
 
-.input-group.half {
-    width: 50%;
+.input-row .input-group {
+    flex: 1;
+    min-width: 0;
 }
 
-.input-group.small {
+.input-row .input-group.small {
+    flex: 0 0 90px;
     width: 90px;
 }
 
