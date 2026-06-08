@@ -1306,14 +1306,42 @@ document.addEventListener("DOMContentLoaded", () => {
         
         // Update dashboard header dynamically
         const parentName = motherName || fatherName || "Ota-Ona";
+        
+        // Update header user-name (if it exists)
         const userNameEl = document.querySelector('.user-name');
         if (userNameEl) {
             userNameEl.innerText = `${parentName} & ${childName}`;
         }
         
+        // Update dashboard inner elements
+        const dashChildName = document.getElementById('dash-child-name');
+        if (dashChildName) dashChildName.innerText = `${childName} Profili`;
+        
+        const profileParentName = document.getElementById('profile-parent-name');
+        if (profileParentName) profileParentName.innerText = parentName;
+        
+        const profileChildName = document.getElementById('profile-child-name');
+        if (profileChildName) profileChildName.innerText = childName;
+        
+        // Update age if provided
+        const firstChildAgeInput = document.querySelector('.child-age-input');
+        if (firstChildAgeInput && firstChildAgeInput.value) {
+            const dashChildAge = document.getElementById('dash-child-age');
+            if (dashChildAge) dashChildAge.innerText = `${firstChildAgeInput.value} yosh`;
+        }
+        
         showScreen("dashboard-screen");
         triggerConfetti();
     };
+    
+    // Edit Profile Logic
+    const btnEditProfile = document.getElementById('btn-edit-profile');
+    if (btnEditProfile) {
+        btnEditProfile.addEventListener('click', () => {
+            triggerHaptic();
+            showScreen('profile-setup-screen');
+        });
+    }
 
     // Initial Startup flow
     setTimeout(() => {
