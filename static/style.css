@@ -293,14 +293,6 @@ body {
     animation: smoothZoom 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
     opacity: 0;
 }
-.is-visible .top-text {
-    animation: textReveal 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 0.2s;
-    opacity: 0;
-}
-.is-visible .bottom-text {
-    animation: textReveal 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 0.4s;
-    opacity: 0;
-}
 
 /* Buttons */
 .btn-skip {
