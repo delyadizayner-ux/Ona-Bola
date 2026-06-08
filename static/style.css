@@ -190,6 +190,18 @@ body {
     margin-bottom: 12px;
 }
 
+.fallback-emoji {
+    font-size: 80px;
+    background: #FFF;
+    width: 150px;
+    height: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    box-shadow: 0 15px 35px rgba(255, 142, 122, 0.15);
+}
+
 .carousel-slide p {
     font-size: 15px;
     color: var(--text-color);

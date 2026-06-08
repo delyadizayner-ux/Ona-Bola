@@ -7,9 +7,9 @@
     <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Main Style Sheet -->
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
     <div id="app">
@@ -30,7 +30,7 @@
                     <!-- Slide 1: Emotion -->
                     <div class="carousel-slide slide-1">
                         <div class="slide-image">
-                            <img src="img/hero1.png" alt="Qahramon" style="width:100%; height:100%; object-fit:contain; border-radius:50%;">
+                            <img src="img/hero1.png" onerror="this.outerHTML='<div class=\'fallback-emoji\'>✨🍌</div>'" alt="" style="width:100%; height:100%; object-fit:contain; border-radius:50%;">
                         </div>
                         <h2>Oyi, men tez o'syapman...</h2>
                         <p>Mening kichik qo'llarim tez orada kattaradi, lekin sizning mehringiz va ovozingiz qalbimda mangu qoladi.</p>
@@ -38,7 +38,7 @@
                     <!-- Slide 2: Reflection -->
                     <div class="carousel-slide slide-2">
                         <div class="slide-image">
-                            <img src="img/hero2.png" alt="Qahramon" style="width:100%; height:100%; object-fit:contain; border-radius:50%;">
+                            <img src="img/hero2.png" onerror="this.outerHTML='<div class=\'fallback-emoji\'>🦸‍♂️👑</div>'" alt="" style="width:100%; height:100%; object-fit:contain; border-radius:50%;">
                         </div>
                         <h2>Vaqtni ortga qaytarib bo'lmaydi</h2>
                         <p>Bugun men bilan o'tkazgan har bir daqiqangiz, ertaga mening butun dunyoyimga aylanadi.</p>
@@ -46,7 +46,7 @@
                     <!-- Slide 3: Gratitude -->
                     <div class="carousel-slide slide-3">
                         <div class="slide-image">
-                            <img src="img/hero3.png" alt="Qahramon" style="width:100%; height:100%; object-fit:contain; border-radius:50%;">
+                            <img src="img/hero3.png" onerror="this.outerHTML='<div class=\'fallback-emoji\'>📱🙅‍♀️</div>'" alt="" style="width:100%; height:100%; object-fit:contain; border-radius:50%;">
                         </div>
                         <h2>Borligingiz - eng katta baxtim</h2>
                         <p>Meni borimcha yaxshi ko'rganingiz, har tun yonimda bo'lib ertak o'qib berganingiz uchun rahmat, Oyijon!</p>
@@ -54,7 +54,7 @@
                     <!-- Slide 4: Attentiveness -->
                     <div class="carousel-slide slide-4">
                         <div class="slide-image">
-                            <img src="img/hero4.png" alt="Qahramon" style="width:100%; height:100%; object-fit:contain; border-radius:50%;">
+                            <img src="img/hero4.png" onerror="this.outerHTML='<div class=\'fallback-emoji\'>🎙️👨‍👩‍👦</div>'" alt="" style="width:100%; height:100%; object-fit:contain; border-radius:50%;">
                         </div>
                         <h2>Har bir so'zingiz - bir qanot</h2>
                         <p>Sizning dilingizdan chiqqan har bir o'git, meni hayotdagi yomonliklardan asraydi.</p>
@@ -62,7 +62,7 @@
                     <!-- Slide 5: Future -->
                     <div class="carousel-slide slide-5">
                         <div class="slide-image">
-                            <img src="img/hero5.png" alt="Qahramon" style="width:100%; height:100%; object-fit:contain; border-radius:50%;">
+                            <img src="img/hero5.png" onerror="this.outerHTML='<div class=\'fallback-emoji\'>🚀</div>'" alt="" style="width:100%; height:100%; object-fit:contain; border-radius:50%;">
                         </div>
                         <h2>Kelajak qahramoni</h2>
                         <p>Bugun ekkan mehr urug'laringiz, ertaga mening porloq kelajagimni yoritadi. Keling, bu sehrli yo'lni birga boshlaymiz!</p>
@@ -304,7 +304,7 @@
                     <div class="book" id="virtual-3d-book">
                         <!-- Page 0: Cover page -->
                         <div class="book-page cover-front active" id="book-page-cover">
-                            <img class="page-bg-img" id="book-cover-img" src="images/screentime_cover.png" alt="Cover Image">
+                            <img class="page-bg-img" id="book-cover-img" src="images/screentime_cover.png" alt="Cover Image" onerror="this.style.display='none'">
                             <div class="page-content">
                                 <div class="book-badge">NANA BANANA OLAMI 🍌</div>
                                 <h1 id="book-cover-title">Sehrli Kitob</h1>
@@ -316,7 +316,7 @@
 
                         <!-- Page 1: Segment 1 (Introduction) -->
                         <div class="book-page page-inner" id="book-page-1">
-                            <img class="page-bg-img" id="book-page-img-1" src="images/screentime_1.png" alt="Page 1 Image">
+                            <img class="page-bg-img" id="book-page-img-1" src="images/screentime_1.png" alt="Page 1 Image" onerror="this.style.display='none'">
                             <div class="page-content">
                                 <div class="page-num">Sahifa 1</div>
                                 <div class="page-text-ribbon">
@@ -329,7 +329,7 @@
 
                         <!-- Page 2: Segment 2 (Adventure) -->
                         <div class="book-page page-inner" id="book-page-2">
-                            <img class="page-bg-img" id="book-page-img-2" src="images/screentime_2.png" alt="Page 2 Image">
+                            <img class="page-bg-img" id="book-page-img-2" src="images/screentime_2.png" alt="Page 2 Image" onerror="this.style.display='none'">
                             <div class="page-content">
                                 <div class="page-num">Sahifa 2</div>
                                 <div class="page-text-ribbon">
@@ -342,7 +342,7 @@
 
                         <!-- Page 3: Segment 3 (Moral & Task) -->
                         <div class="book-page page-inner" id="book-page-3">
-                            <img class="page-bg-img" id="book-page-img-3" src="images/screentime_3.png" alt="Page 3 Image">
+                            <img class="page-bg-img" id="book-page-img-3" src="images/screentime_3.png" alt="Page 3 Image" onerror="this.style.display='none'">
                             <div class="page-content">
                                 <div class="page-num">Sahifa 3</div>
                                 <div class="page-text-ribbon">
@@ -467,7 +467,7 @@
         </div>
     </div>
 
-    <!-- Script Entry Point -->
-    <script src="app.js"></script>
+    <!-- App Logic -->
+    <script src="app.js?v=3"></script>
 </body>
 </html>
