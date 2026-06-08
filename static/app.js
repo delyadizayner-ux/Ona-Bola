@@ -116,6 +116,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 currentChild = data.child;
                 
                 updateUI();
+
+                // Save to localStorage if we got user info
+                if (currentUser.mother_name || currentUser.father_name || currentChild) {
+                    const profileToSave = {
+                        mother_name: currentUser.mother_name || "",
+                        father_name: currentUser.father_name || "",
+                        child_name: currentChild ? currentChild.name : "Farzandim",
+                        child_age: currentChild ? currentChild.age : 4,
+                        problems: currentChild ? currentChild.problems : ['behavior']
+                    };
+                    localStorage.setItem("onabola_profile", JSON.stringify(profileToSave));
+                    localStorage.setItem("onabola_logged_in", "true");
+                }
                 
                 if (data.samples_count) {
                     updateVoiceCloneStatus(data.samples_count);
@@ -1581,7 +1594,7 @@ document.addEventListener("DOMContentLoaded", () => {
             childGroup.className = 'child-field-group';
             childGroup.innerHTML = `
                 <h4 class="child-field-title">${i}-Farzand</h4>
-                <div class="input-row">
+                <div class="input-row no-stack">
                     <div class="input-group">
                         <input type="text" class="child-name-input" placeholder="Ismi" required>
                     </div>
@@ -1639,6 +1652,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 
                 // Save logged in state in localStorage
                 localStorage.setItem("onabola_logged_in", "true");
+
+                // Save profile details to localStorage for persistence
+                const profileToSave = {
+                    mother_name: motherName,
+                    father_name: fatherName,
+                    child_name: childName,
+                    child_age: childAge,
+                    problems: childProblems
+                };
+                localStorage.setItem("onabola_profile", JSON.stringify(profileToSave));
                 
                 // Update dashboard inner elements
                 const dashChildName = document.getElementById('dash-child-name');
@@ -1702,11 +1725,43 @@ document.addEventListener("DOMContentLoaded", () => {
                         updateDuoWizard();
                     }
 
-                    // If profile is already set up in the database, skip onboarding and login screen
-                    if (currentUser.mother_name || currentUser.father_name || currentChild) {
+                    // Check if we have a locally saved profile to restore
+                    const localProfileStr = localStorage.getItem("onabola_profile");
+                    const hasLocalProfile = !!localProfileStr;
+
+                    // If profile is already set up in the database, or we have a local copy to restore
+                    if (currentUser.mother_name || currentUser.father_name || currentChild || hasLocalProfile) {
+                        
+                        // If the database profile was reset but we have local profile, restore it silently
+                        if (!(currentUser.mother_name || currentUser.father_name || currentChild) && hasLocalProfile) {
+                            try {
+                                const localProfile = JSON.parse(localProfileStr);
+                                const restoreRes = await fetch("/api/save_profile", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({
+                                        telegram_id: telegramId,
+                                        name: localProfile.child_name || "Farzandim",
+                                        age: parseInt(localProfile.child_age) || 4,
+                                        mother_name: localProfile.mother_name || "",
+                                        father_name: localProfile.father_name || "",
+                                        problems: localProfile.problems || ['behavior']
+                                    })
+                                });
+                                const restoreData = await restoreRes.json();
+                                if (restoreData.success) {
+                                    currentUser = restoreData.user;
+                                    currentChild = restoreData.child;
+                                    updateUI();
+                                }
+                            } catch (err) {
+                                console.error("Failed to restore profile from local storage:", err);
+                            }
+                        }
+
                         const loggedInBefore = localStorage.getItem("onabola_logged_in") === "true";
                         // Auto-login real Telegram users, or browser testers who checked in before
-                        if (telegramId !== 999999 || loggedInBefore) {
+                        if (telegramId !== 999999 || loggedInBefore || hasLocalProfile) {
                             localStorage.setItem("onabola_logged_in", "true");
                             showScreen("dashboard-screen");
                             loadDashboardData();
