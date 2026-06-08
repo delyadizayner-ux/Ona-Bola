@@ -1239,10 +1239,67 @@ document.addEventListener("DOMContentLoaded", () => {
         document.querySelectorAll('.btn-skip, .btn-start-adventure').forEach(btn => {
             btn.addEventListener('click', () => {
                 triggerHaptic();
-                loginUser();
+                goToLogin();
             });
         });
     }
+
+    // Flow 1: Go to Telegram Login
+    window.goToLogin = function() {
+        showScreen("login-screen");
+    };
+
+    // Flow 2: Simulate Telegram Login and go to Profile Setup
+    window.simulateTelegramLogin = function() {
+        triggerHaptic();
+        // Simulate grabbing name from Telegram (mock)
+        const tgName = "Malika"; // In real app, this would be window.Telegram.WebApp.initDataUnsafe.user.first_name
+        document.getElementById('parent-name').value = tgName;
+        
+        showScreen("profile-setup-screen");
+        generateChildrenFields(); // Generate initial field
+    };
+
+    // Dynamic Form Generation
+    window.generateChildrenFields = function() {
+        const countInput = document.getElementById('children-count');
+        let count = parseInt(countInput.value) || 1;
+        
+        // Boundaries
+        if (count < 1) { count = 1; countInput.value = 1; }
+        if (count > 10) { count = 10; countInput.value = 10; }
+        
+        const container = document.getElementById('children-fields-container');
+        container.innerHTML = ''; // Clear existing
+        
+        for (let i = 1; i <= count; i++) {
+            const childGroup = document.createElement('div');
+            childGroup.className = 'child-field-group';
+            childGroup.innerHTML = `
+                <h4 class="child-field-title">${i}-Farzand</h4>
+                <div class="input-row">
+                    <div class="input-group">
+                        <input type="text" placeholder="Ismi" required>
+                    </div>
+                    <div class="input-group small">
+                        <input type="number" placeholder="Yoshi" min="0" max="18" required>
+                    </div>
+                </div>
+            `;
+            container.appendChild(childGroup);
+        }
+    };
+
+    // Flow 3: Save Profile and go to Dashboard
+    window.saveProfile = function(event) {
+        event.preventDefault();
+        triggerHaptic();
+        
+        // Here you would collect the data and send to backend
+        // For now, we just go to the dashboard
+        showScreen("dashboard-screen");
+        triggerConfetti();
+    };
 
     // Initial Startup flow
     setTimeout(() => {

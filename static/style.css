@@ -285,6 +285,171 @@ body {
 
 /* All .is-visible scroll animations removed per user request */
 
+/* Glass Panel */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 28px;
+    padding: 32px 24px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.08);
+    margin: auto;
+}
+
+/* Auth & Profile Setup Screens */
+#login-screen, #profile-setup-screen {
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #F0F4FD 0%, #D1E1F5 100%);
+}
+
+.login-icon-wrapper {
+    width: 80px;
+    height: 80px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 20px;
+    box-shadow: 0 8px 20px rgba(0, 136, 204, 0.15);
+}
+
+.tg-logo {
+    width: 45px;
+    height: 45px;
+}
+
+.form-title {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--primary-dark);
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.form-subtitle {
+    font-size: 15px;
+    color: var(--text-color);
+    line-height: 1.5;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.btn-telegram-login {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    background: #0088cc;
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 20px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 10px 25px rgba(0, 136, 204, 0.3);
+    transition: transform 0.2s, background 0.2s;
+}
+
+.btn-telegram-login:active {
+    transform: translateY(2px);
+    background: #0077b3;
+}
+
+/* Profile Form */
+#profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    text-align: left;
+}
+
+.input-row {
+    display: flex;
+    gap: 12px;
+}
+
+.input-group.half {
+    width: 50%;
+}
+
+.input-group.small {
+    width: 90px;
+}
+
+.input-group label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--primary-dark);
+}
+
+.input-group input {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    padding: 14px 16px;
+    border-radius: 16px;
+    font-size: 15px;
+    color: var(--text-color);
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(255, 142, 122, 0.15);
+}
+
+.child-field-group {
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 20px;
+    padding: 16px;
+    margin-top: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+}
+
+.child-field-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--primary-dark);
+    margin-top: 0;
+    margin-bottom: 12px;
+    text-align: left;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    border: none;
+    padding: 18px;
+    border-radius: 24px;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 10px 25px rgba(255, 142, 122, 0.4);
+    transition: all 0.3s ease;
+    margin-top: 10px;
+    width: 100%;
+}
+
+.btn-primary:active {
+    transform: translateY(2px);
+}
+
 /* Buttons */
 .btn-skip {
     position: absolute;
