@@ -202,67 +202,86 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Onboarding Form Submit
-    document.getElementById("onboarding-form").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        triggerHaptic();
+    // 4. Carousel Logic
+    let currentSlide = 0;
+    const totalSlides = 5;
+    const carouselTrack = document.getElementById("carousel-track");
+    const dots = document.querySelectorAll(".carousel-dots .dot");
+    const nextBtn = document.getElementById("btn-carousel-next");
+    const loginBtn = document.getElementById("btn-telegram-login");
 
-        const name = document.getElementById("child-name").value.trim();
-        const age = document.getElementById("child-age").value;
-        const favoriteHero = document.getElementById("fav-hero").value.trim();
-        const favoriteAnimal = document.getElementById("fav-animal").value.trim();
-        const favoriteToy = document.getElementById("fav-toy").value.trim();
-        const boyFriend = document.getElementById("boy-friend").value.trim();
-        const girlFriend = document.getElementById("girl-friend").value.trim();
-
-        // Collect problems checked
-        const problems = [];
-        document.querySelectorAll(".problem-chips input[type='checkbox']:checked").forEach(cb => {
-            problems.push(cb.value);
+    function updateCarousel() {
+        // Move track
+        carouselTrack.style.transform = `translateX(-${currentSlide * 20}%)`;
+        
+        // Update dots
+        dots.forEach((dot, index) => {
+            dot.classList.toggle("active", index === currentSlide);
         });
 
-        if (problems.length === 0) {
-            showAlert("Iltimos, bolada o'zgarishi kerak bo'lgan kamida 1 ta odatni tanlang!");
-            return;
+        // Toggle buttons on last slide
+        if (currentSlide === totalSlides - 1) {
+            nextBtn.classList.add("hidden");
+            loginBtn.classList.remove("hidden");
+        } else {
+            nextBtn.classList.remove("hidden");
+            loginBtn.classList.add("hidden");
         }
+    }
 
-        const saveProfileBtn = document.getElementById("save-profile-btn");
-        saveProfileBtn.disabled = true;
-        saveProfileBtn.innerText = "Saqlanmoqda...";
-
-        try {
-            const response = await fetch("/api/save_profile", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    telegram_id: telegramId,
-                    name,
-                    age,
-                    favorite_hero: favoriteHero,
-                    favorite_animal: favoriteAnimal,
-                    favorite_toy: favoriteToy,
-                    boy_friend: boyFriend,
-                    girl_friend: girlFriend,
-                    problems
-                })
-            });
-            const data = await response.json();
-            if (data.success) {
-                currentChild = data.child;
-                updateUI();
-                showScreen("dashboard-screen");
-                loadDashboardData();
-            } else {
-                showAlert("Profilni saqlashda xatolik.");
+    if (nextBtn) {
+        nextBtn.addEventListener("click", () => {
+            triggerHaptic();
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateCarousel();
             }
-        } catch (e) {
-            console.error("Save profile error:", e);
-            showAlert("Tarmoq xatosi.");
-        } finally {
-            saveProfileBtn.disabled = false;
-            saveProfileBtn.innerText = "Profilni saqlash";
+        });
+    }
+
+    // Swipe support for Carousel
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    if (carouselTrack) {
+        carouselTrack.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, {passive: true});
+
+        carouselTrack.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, {passive: true});
+    }
+
+    function handleSwipe() {
+        if (touchEndX < touchStartX - 40) {
+            // Swipe Left (Next)
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateCarousel();
+                triggerHaptic();
+            }
         }
-    });
+        if (touchEndX > touchStartX + 40) {
+            // Swipe Right (Prev)
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateCarousel();
+                triggerHaptic();
+            }
+        }
+    }
+
+    if (loginBtn) {
+        loginBtn.addEventListener("click", () => {
+            triggerHaptic();
+            const originalText = loginBtn.innerHTML;
+            loginBtn.innerHTML = `<span class="spinner" style="width:16px;height:16px;margin:0 6px 0 0;display:inline-block;vertical-align:middle;border-width:2px;border-top-color:#fff;"></span> Ulanmoqda...`;
+            loginBtn.disabled = true;
+            loginUser();
+        });
+    }
 
     // 4. Tab Navigation Logic
     document.querySelectorAll(".tab-btn").forEach(btn => {
@@ -1184,6 +1203,8 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Start Login Process
-    loginUser();
+    // Initial Startup flow
+    setTimeout(() => {
+        showScreen("carousel-screen");
+    }, 1500); // 1.5s loading animation
 });

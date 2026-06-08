@@ -108,124 +108,121 @@ body {
     font-size: 15px;
 }
 
-/* 2. ONBOARDING SCREEN */
-#onboarding-screen .header {
-    margin-bottom: 30px;
+/* 2. CAROUSEL ONBOARDING SCREEN */
+#carousel-screen {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(180deg, #FFF9F6 0%, #FFF0EA 100%);
+    overflow: hidden;
+}
+
+.carousel-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.carousel-track {
+    display: flex;
+    width: 500%; /* 5 slides */
+    height: 100%;
+    transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    will-change: transform;
+}
+
+.carousel-slide {
+    width: 20%; /* 100% / 5 */
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 30px;
     text-align: center;
 }
 
-#onboarding-screen h1 {
-    font-size: 26px;
+.slide-image {
+    font-size: 80px;
+    margin-bottom: 30px;
+    background: #FFF;
+    width: 150px;
+    height: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    box-shadow: 0 15px 35px rgba(255, 142, 122, 0.15);
+    animation: float 3s ease-in-out infinite;
+}
+
+.carousel-slide h2 {
+    font-size: 24px;
     font-weight: 700;
     color: var(--primary-dark);
-    margin-bottom: 8px;
-}
-
-#onboarding-screen p {
-    color: var(--text-light);
-    font-size: 15px;
-}
-
-/* Form Styles */
-form {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    width: 100%;
-}
-
-.form-row {
-    display: flex;
-    gap: 12px;
-}
-
-label {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text-color);
-    padding-left: 4px;
-}
-
-input[type="text"],
-input[type="number"],
-select {
-    width: 100%;
-    padding: 14px 16px;
-    border: 2px solid rgba(255, 142, 122, 0.15);
-    background-color: #FFF;
-    border-radius: var(--border-radius-sm);
-    font-family: inherit;
-    font-size: 15px;
-    color: var(--text-color);
-    transition: var(--transition);
-    outline: none;
-}
-
-input[type="text"]:focus,
-input[type="number"]:focus,
-select:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(255, 142, 122, 0.15);
-}
-
-/* Chips Checkbox Group */
-.problems-section {
-    margin-top: 10px;
-}
-
-.problems-section h3 {
-    font-size: 16px;
-    font-weight: 700;
-    margin-bottom: 4px;
-}
-
-.section-desc {
-    font-size: 13px;
-    color: var(--text-light);
     margin-bottom: 12px;
 }
 
-.problem-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 24px;
-}
-
-.chip-checkbox {
-    position: relative;
-}
-
-.chip-checkbox input[type="checkbox"] {
-    position: absolute;
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.chip-checkbox label {
-    display: inline-block;
-    padding: 10px 16px;
-    background-color: #FFF;
-    border: 2px solid rgba(255, 142, 122, 0.1);
-    border-radius: 30px;
-    font-size: 14px;
-    font-weight: 500;
+.carousel-slide p {
+    font-size: 15px;
     color: var(--text-color);
-    cursor: pointer;
+    line-height: 1.5;
+}
+
+.carousel-controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: linear-gradient(0deg, rgba(255,240,234,1) 0%, rgba(255,240,234,0.9) 70%, rgba(255,240,234,0) 100%);
+}
+
+.carousel-dots {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.carousel-dots .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: rgba(255, 142, 122, 0.3);
     transition: var(--transition);
 }
 
-.chip-checkbox input[type="checkbox"]:checked + label {
-    background-color: var(--accent);
-    border-color: #D3BAFF;
-    transform: scale(1.03);
+.carousel-dots .dot.active {
+    background-color: var(--primary);
+    width: 24px;
+    border-radius: 10px;
+}
+
+.btn-telegram-login {
+    background: #2AABEE; /* Telegram Blue */
+    color: white;
+    box-shadow: 0 6px 20px rgba(42, 171, 238, 0.3);
+}
+
+.btn-telegram-login:active {
+    background: #229ED9;
+}
+
+/* Animations */
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
+
+.hidden {
+    display: none !important;
 }
 
 /* Buttons */

@@ -23,73 +23,59 @@
             </div>
         </div>
 
-        <!-- 2. ONBOARDING SCREEN -->
-        <div id="onboarding-screen" class="screen">
-            <div class="header">
-                <h1>Kichik Qahramon Profili</h1>
-                <p>Farzandingizga mos shaxsiy ertaklar yaratishimiz uchun ma'lumotlarni kiriting.</p>
+        <!-- 2. CAROUSEL ONBOARDING SCREEN -->
+        <div id="carousel-screen" class="screen">
+            <div class="carousel-container">
+                <div class="carousel-track" id="carousel-track">
+                    <!-- Slide 1 -->
+                    <div class="carousel-slide slide-1">
+                        <div class="slide-image">✨🍌</div>
+                        <h2>Nana Banana olamiga xush kelibsiz!</h2>
+                        <p>Farzandingiz uchun sehrli va tarbiyaviy ertaklar dunyosi.</p>
+                    </div>
+                    <!-- Slide 2 -->
+                    <div class="carousel-slide slide-2">
+                        <div class="slide-image">🦸‍♂️👑</div>
+                        <h2>Shaxsiy qahramonlar</h2>
+                        <p>Farzandingiz o'zini ertakning bosh qahramoni sifatida his qiladi va o'rnak oladi.</p>
+                    </div>
+                    <!-- Slide 3 -->
+                    <div class="carousel-slide slide-3">
+                        <div class="slide-image">📱🙅‍♀️</div>
+                        <h2>Yomon odatlarga qarshi</h2>
+                        <p>Telefon o'ynash, tish yuvmaslik kabi odatlarni ertak orqali oson yo'qoting.</p>
+                    </div>
+                    <!-- Slide 4 -->
+                    <div class="carousel-slide slide-4">
+                        <div class="slide-image">🎙️👨‍👩‍👦</div>
+                        <h2>O'z ovozingiz bilan o'qing!</h2>
+                        <p>Bizning qadriyatimiz: AI yordamida farzandingiz sizning mehribon ovozingizda ertak eshitadi.</p>
+                    </div>
+                    <!-- Slide 5 -->
+                    <div class="carousel-slide slide-5">
+                        <div class="slide-image">🚀</div>
+                        <h2>Sehrli sayohatni boshlaymiz!</h2>
+                        <p>Tizimga kirish uchun bitta tugmani bosing va darhol boshlang.</p>
+                    </div>
+                </div>
+                
+                <div class="carousel-controls">
+                    <div class="carousel-dots" id="carousel-dots">
+                        <span class="dot active"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                    </div>
+                    
+                    <button class="btn btn-secondary btn-carousel-next" id="btn-carousel-next">Keyingisi ➡️</button>
+                    
+                    <button class="btn btn-primary btn-telegram-login hidden" id="btn-telegram-login">
+                        <svg viewBox="0 0 24 24" width="20" height="20" style="margin-right:8px; fill:white; display:inline-block; vertical-align:middle;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.62-.2-1.12-.31-1.1-.66.01-.18.27-.36.78-.55 3.07-1.34 5.11-2.22 6.13-2.65 2.91-1.21 3.52-1.42 3.92-1.43.09 0 .28.02.38.1.09.07.12.18.13.28 0 .04.01.12 0 .21z"/></svg>
+                        Telegram orqali kirish
+                    </button>
+                </div>
             </div>
-            <form id="onboarding-form">
-                <div class="form-group">
-                    <label for="child-name">Farzandingiz ismi</label>
-                    <input type="text" id="child-name" placeholder="Masalan: Asadbek" required>
-                </div>
-                <div class="form-group">
-                    <label for="child-age">Yoshi</label>
-                    <input type="number" id="child-age" min="1" max="15" placeholder="Masalan: 4" required>
-                </div>
-                <div class="form-group">
-                    <label for="fav-hero">Sevimli multfilm qahramoni</label>
-                    <input type="text" id="fav-hero" placeholder="Masalan: Spiderman, Lolo..." required>
-                </div>
-                <div class="form-group">
-                    <label for="fav-animal">Sevimli hayvoni</label>
-                    <input type="text" id="fav-animal" placeholder="Masalan: Quyoncha, Kuchukcha..." required>
-                </div>
-                <div class="form-group">
-                    <label for="fav-toy">Sevimli o'yinchog'i</label>
-                    <input type="text" id="fav-toy" placeholder="Masalan: Qizil mashina, Ayiqcha..." required>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="boy-friend">Eng yaqin o'g'il o'rtog'i</label>
-                        <input type="text" id="boy-friend" placeholder="Masalan: Solih">
-                    </div>
-                    <div class="form-group">
-                        <label for="girl-friend">Eng yaqin qiz o'rtog'i</label>
-                        <input type="text" id="girl-friend" placeholder="Masalan: Oysha">
-                    </div>
-                </div>
-
-                <div class="problems-section">
-                    <h3>Yaxshilanishi kerak bo'lgan odatlar</h3>
-                    <p class="section-desc">Ertaklar orqali tuzatiladigan odatlarni tanlang (kamida 1 ta):</p>
-                    <div class="problem-chips">
-                        <div class="chip-checkbox">
-                            <input type="checkbox" id="prob-screentime" value="screentime">
-                            <label for="prob-screentime">📱 Telefonni ko'p ko'rish</label>
-                        </div>
-                        <div class="chip-checkbox">
-                            <input type="checkbox" id="prob-teeth" value="teeth_brush">
-                            <label for="prob-teeth">🪥 Tish yuvmaslik</label>
-                        </div>
-                        <div class="chip-checkbox">
-                            <input type="checkbox" id="prob-food" value="food">
-                            <label for="prob-food">🍔 Fast-food / Shirinliklar</label>
-                        </div>
-                        <div class="chip-checkbox">
-                            <input type="checkbox" id="prob-bedtime" value="bedtime">
-                            <label for="prob-bedtime">🌙 Kech uxlash</label>
-                        </div>
-                        <div class="chip-checkbox">
-                            <input type="checkbox" id="prob-behavior" value="behavior">
-                            <label for="prob-behavior">😠 Ujarlik / Aytganini qildirish</label>
-                        </div>
-                    </div>
-                </div>
-
-                <button type="submit" class="btn btn-primary" id="save-profile-btn">Profilni saqlash</button>
-            </form>
         </div>
 
         <!-- 3. DASHBOARD SCREEN -->
