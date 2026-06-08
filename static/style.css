@@ -145,6 +145,8 @@ body {
 .section-1 { background: linear-gradient(180deg, #F0FDF4 0%, #D1F5DF 100%); }
 .section-2 { background: linear-gradient(180deg, #FFF9F6 0%, #FFF0EA 100%); }
 .section-3 { background: linear-gradient(180deg, #F0F4FD 0%, #D1E1F5 100%); }
+.section-4 { background: linear-gradient(180deg, #FFF0FA 0%, #F5D1ED 100%); }
+.section-5 { background: linear-gradient(180deg, #FDFFF0 0%, #E8F5D1 100%); }
 
 .scene-content {
     text-align: center;
@@ -157,30 +159,38 @@ body {
     justify-content: center;
 }
 
-.scroll-section h2 {
-    font-size: 36px;
+.scroll-section h2.overlay-text {
+    font-size: 30px;
     font-weight: 800;
     color: var(--primary-dark);
-    margin-bottom: 10px;
+    margin-bottom: 0;
     line-height: 1.1;
+    position: absolute;
+    top: -20px;
+    width: 130%;
+    left: -15%;
+    z-index: 5;
 }
 
-.scroll-section p {
-    font-size: 17px;
+.scroll-section p.overlay-text {
+    font-size: 16px;
     color: var(--text-color);
-    line-height: 1.5;
-    margin-top: 15px;
-    margin-bottom: 25px;
-    font-weight: 500;
-    padding: 0 15px;
+    line-height: 1.4;
+    margin: 0;
+    font-weight: 600;
+    position: absolute;
+    bottom: -15px;
+    width: 110%;
+    left: -5%;
+    z-index: 5;
 }
 
 .hero-wrapper {
     position: relative;
-    width: 90vw;
-    max-width: 380px;
+    width: 85vw;
+    max-width: 350px;
     aspect-ratio: 1/1;
-    margin: 0 auto;
+    margin: 40px auto;
     /* Move mix-blend-mode here because animations on this wrapper create a stacking context */
     mix-blend-mode: multiply;
 }
