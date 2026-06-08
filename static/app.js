@@ -1198,13 +1198,243 @@ document.addEventListener("DOMContentLoaded", () => {
                 showAlert("Aloqa xatosi.");
             } finally {
                 btn.disabled = false;
+            currentNode.connect(lowpass);
+            currentNode = lowpass;
+        }
+        
+        // B. Magic Echo/Reverb simulation
+        if (applyReverb) {
+            const delay = audioCtx.createDelay(1.0);
+            delay.delayTime.setValueAtTime(0.3, audioCtx.currentTime); // 300ms echo
+            
+            const feedback = audioCtx.createGain();
+            feedback.gain.setValueAtTime(0.25, audioCtx.currentTime); // 25% feedback volume
+            
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = "lowpass";
+            filter.frequency.setValueAtTime(700, audioCtx.currentTime);
+            
+            // Connect delay feedback loop
+            delay.connect(feedback);
+            feedback.connect(filter);
+            filter.connect(delay);
+            
+            const reverbGain = audioCtx.createGain();
+            reverbGain.gain.setValueAtTime(0.2, audioCtx.currentTime); // wet gain
+            
+            currentNode.connect(delay);
+            delay.connect(reverbGain);
+            reverbGain.connect(audioCtx.destination);
+        }
+        
+        // Normalizer Gain
+        const normGain = audioCtx.createGain();
+        normGain.gain.setValueAtTime(1.2, audioCtx.currentTime); // slight voice boost
+        
+        currentNode.connect(normGain);
+        normGain.connect(audioCtx.destination);
+        
+        source.start(startTime);
+        currentlyPlayingSources.push(source);
+        
+        return audioBuffer.duration;
+    }
+
+    // Setup Dubbing listeners
+    document.querySelectorAll(".btn-start-rec").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const seg = btn.getAttribute("data-seg");
+            startSegmentRecording(seg);
+        });
+    });
+
+    document.querySelectorAll(".btn-stop-rec").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const seg = btn.getAttribute("data-seg");
+            stopSegmentRecording(seg);
+        });
+    });
+
+    document.querySelectorAll(".btn-play-rec").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const seg = btn.getAttribute("data-seg");
+            playSegmentPreview(seg);
+        });
+    });
+
+    document.getElementById("btn-play-duet").addEventListener("click", () => {
+        playCombinedDuet();
+    });
+
+    // Setup 3D Book Navigation listeners
+    document.getElementById("btn-prev-page").addEventListener("click", () => {
+        triggerHaptic();
+        flipToPage(currentPage - 1);
+    });
+
+    document.getElementById("btn-next-page").addEventListener("click", () => {
+        triggerHaptic();
+        flipToPage(currentPage + 1);
+    });
+
+    document.getElementById("btn-close-story").addEventListener("click", () => {
+        triggerHaptic();
+        stopMasterPlay();
+        showScreen("dashboard-screen");
+        if (activeTab === "tab-stories") {
+            loadStoriesList();
+        } else {
+            loadDashboardData();
+        }
+    });
+
+    // Mock Audio Player toggle
+    let isPlaying = false;
+    document.getElementById("btn-play-audio").addEventListener("click", () => {
+        triggerHaptic();
+        
+        const selectedVoice = document.getElementById("voice-char").value;
+        if (selectedVoice === "cloned") {
+            // Check if user has recorded their duet segments
+            if (!(audioBlobs[1] && audioBlobs[2] && audioBlobs[3])) {
+                showAlert("Ota va ona ovozlari to'liq yozilmagan! Iltimos, pastdagi 'Sehrli Duet' qismida 3 ta sahifani ham o'qib yozib oling.");
+                return;
+            }
+            playCombinedDuet();
+            return;
+        }
+
+        isPlaying = !isPlaying;
+        const playIcon = document.getElementById("btn-play-audio").querySelector(".icon");
+        const audioStatus = document.getElementById("audio-status");
+        
+        if (isPlaying) {
+            playIcon.innerText = "⏸️";
+            audioStatus.innerText = "AI Ovozli ertak ijro etilmoqda...";
+            
+            // Text to speech simulation using Web Speech API if supported
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const storyText = document.getElementById("view-story-body").innerText;
+                const utterance = new SpeechSynthesisUtterance(storyText.substring(0, 150) + "..."); // Short snippet for demo
+                utterance.lang = "tr-TR"; // Turkish voice as rough approximation for Uzbek if Uzbek isn't installed
+                utterance.rate = 0.9;
+                utterance.onend = () => {
+                    playIcon.innerText = "▶️";
+                    audioStatus.innerText = "Audio tugadi";
+                    isPlaying = false;
+                };
+                window.speechSynthesis.speak(utterance);
+            }
+        } else {
+            playIcon.innerText = "▶️";
+            audioStatus.innerText = "Audio to'xtatildi";
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+        }
+    });
+
+    // Add Story Task to checklist
+    document.getElementById("btn-add-story-task").addEventListener("click", () => {
+        triggerHaptic();
+        showAlert("Ertakdagi tarbiyaviy vazifa bolaning kunlik vazifalar ro'yxatiga qo'shildi!");
+    });
+
+    // 7. Edit Profile Button
+    document.getElementById("btn-edit-profile").addEventListener("click", () => {
+        triggerHaptic();
+        // Populate current details in form
+        if (currentChild) {
+            document.getElementById("child-name").value = currentChild.name;
+            document.getElementById("child-age").value = currentChild.age;
+            document.getElementById("fav-hero").value = currentChild.favorite_hero;
+            document.getElementById("fav-animal").value = currentChild.favorite_animal;
+            document.getElementById("fav-toy").value = currentChild.favorite_toy;
+            document.getElementById("boy-friend").value = currentChild.boy_friend_name;
+            document.getElementById("girl-friend").value = currentChild.girl_friend_name;
+
+            // Checkboxes
+            document.querySelectorAll(".problem-chips input[type='checkbox']").forEach(cb => {
+                cb.checked = currentChild.problems && currentChild.problems.includes(cb.value);
+            });
+        }
+        showScreen("onboarding-screen");
+    });
+
+    // 8. Subscription Simulation
+    document.querySelectorAll(".btn-subscribe").forEach(btn => {
+        btn.addEventListener("click", async (e) => {
+            triggerHaptic();
+            const plan = btn.getAttribute("data-plan");
+            
+            btn.disabled = true;
+            btn.innerText = "Faollashtirilmoqda...";
+
+            try {
+                const response = await fetch("/api/subscribe", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ telegram_id: telegramId, plan_type: plan })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    currentUser.subscription_status = data.user.subscription_status;
+                    currentUser.subscription_expires_at = data.user.subscription_expires_at;
+                    currentUser.bonus_tokens = data.user.bonus_tokens;
+                    
+                    updateUI();
+                    showAlert(`Tabriklaymiz! Siz ${plan === 'weekly' ? 'Haftalik' : 'Oylik'} Premium obunani muvaffaqiyatli faollashtirdingiz.`);
+                } else {
+                    showAlert("To'lovni amalga oshirishda xatolik.");
+                }
+            } catch (e) {
+                console.error("Subscribe error:", e);
+                showAlert("Aloqa xatosi.");
+            } finally {
+                btn.disabled = false;
                 btn.innerText = "Sotib olish";
             }
         });
     });
 
+    // Vertical Scroll Observer logic
+    function initVerticalScroll() {
+        const sections = document.querySelectorAll('.scroll-section');
+        
+        // Setup observer for fade up animations
+        const observerOptions = {
+            root: document.getElementById('scroll-container'),
+            rootMargin: '0px',
+            threshold: 0.5
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    // Add haptic feedback when snapping to a new section
+                    triggerHaptic();
+                }
+            });
+        }, observerOptions);
+
+        sections.forEach(section => {
+            observer.observe(section);
+        });
+
+        // Attach listeners to new buttons
+        document.querySelectorAll('.btn-skip, .btn-start-adventure').forEach(btn => {
+            btn.addEventListener('click', () => {
+                triggerHaptic();
+                loginUser();
+            });
+        });
+    }
+
     // Initial Startup flow
     setTimeout(() => {
         showScreen("carousel-screen");
+        initVerticalScroll();
     }, 1500); // 1.5s loading animation
 });
