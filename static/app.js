@@ -1356,7 +1356,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 
                 showScreen("dashboard-screen");
                 loadDashboardData();
-                triggerConfetti();
             } else {
                 showAlert(data.error || "Profilni saqlashda xatolik yuz berdi.");
             }
