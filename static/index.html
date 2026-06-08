@@ -9,7 +9,7 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Main Style Sheet -->
-    <link rel="stylesheet" href="style.css?v=3">
+    <link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
     <div id="app">
@@ -41,7 +41,7 @@
                             <div class="chevron-down"></div>
                         </div>
                     </div>
-                    <button class="btn-skip" onclick="loginUser()">O'TKAZIB YUBORISH</button>
+                    <button class="btn-skip" onclick="goToLogin()">O'TKAZIB YUBORISH</button>
                 </section>
 
                 <!-- Screen 2: Hissiyot -->
@@ -96,7 +96,7 @@
                         <div class="hero-wrapper hero-away">
                             <img src="img/hero5.png" class="hero-img float-animation" alt="Hero 5">
                         </div>
-                        <button class="btn-start-adventure" onclick="loginUser()">SARGUZASHTNI BOSHLASH</button>
+                        <button class="btn-start-adventure" onclick="goToLogin()">SARGUZASHTNI BOSHLASH</button>
                     </div>
                 </section>
 
@@ -176,18 +176,33 @@
 
         <!-- 5. MAIN DASHBOARD SCREEN -->
         <div id="dashboard-screen" class="screen">
-            <!-- Immersive Magic Dust Background -->
-            <div class="magic-dust-container">
-                <div class="magic-star" style="top: 10%; left: 20%; animation-delay: 0s;"></div>
-                <div class="magic-star" style="top: 25%; left: 80%; animation-delay: 1.2s;"></div>
-                <div class="magic-star" style="top: 50%; left: 10%; animation-delay: 2.5s;"></div>
-                <div class="magic-star" style="top: 70%; left: 90%; animation-delay: 0.8s;"></div>
-                <div class="magic-star" style="top: 85%; left: 30%; animation-delay: 3.1s;"></div>
-                <div class="magic-star" style="top: 40%; left: 50%; animation-delay: 1.7s;"></div>
-                <div class="magic-star" style="top: 15%; left: 60%; animation-delay: 0.4s;"></div>
+            <!-- Parallax Immersive Background Layers -->
+            <div class="parallax-bg">
+                <!-- Layer 1: Gradient Blobs (slowest, deepest) -->
+                <div class="gradient-blob blob-1"></div>
+                <div class="gradient-blob blob-2"></div>
+                <div class="gradient-blob blob-3"></div>
+                
+                <!-- Layer 2: Magic Stars (medium speed) -->
+                <div class="magic-dust-container">
+                    <div class="magic-star star-sm" style="top: 8%; left: 15%; animation-delay: 0s;"></div>
+                    <div class="magic-star star-md" style="top: 20%; left: 75%; animation-delay: 1.2s;"></div>
+                    <div class="magic-star star-sm" style="top: 35%; left: 5%; animation-delay: 2.5s;"></div>
+                    <div class="magic-star star-lg" style="top: 55%; left: 85%; animation-delay: 0.8s;"></div>
+                    <div class="magic-star star-sm" style="top: 72%; left: 25%; animation-delay: 3.1s;"></div>
+                    <div class="magic-star star-md" style="top: 45%; left: 55%; animation-delay: 1.7s;"></div>
+                    <div class="magic-star star-sm" style="top: 12%; left: 65%; animation-delay: 0.4s;"></div>
+                    <div class="magic-star star-lg" style="top: 88%; left: 40%; animation-delay: 2.0s;"></div>
+                    <div class="magic-star star-sm" style="top: 65%; left: 10%; animation-delay: 3.5s;"></div>
+                    <div class="magic-star star-md" style="top: 30%; left: 92%; animation-delay: 0.6s;"></div>
+                    <!-- Shooting stars -->
+                    <div class="shooting-star" style="top: 15%; left: 40%; animation-delay: 2s;"></div>
+                    <div class="shooting-star" style="top: 60%; left: 70%; animation-delay: 5s;"></div>
+                </div>
+                
+                <!-- Layer 3: Hero Watermark (closest, subtle) -->
+                <div class="dashboard-bg-watermark"></div>
             </div>
-            <!-- Background Hero Watermark -->
-            <div class="dashboard-bg-watermark"></div>
             
             <div class="dashboard-header">
                 <div class="user-info">
@@ -569,6 +584,6 @@
     </div>
 
     <!-- App Logic -->
-    <script src="app.js?v=3"></script>
+    <script src="app.js?v=5"></script>
 </body>
 </html>

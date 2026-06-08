@@ -584,8 +584,136 @@ body {
 }
 
 /* 3. DASHBOARD SCREEN & NAV TABS */
+/* All dashboard styles are consolidated in the Magical Night section below */
+
+/* Dashboard Premium Background (Magical Night) */
 #dashboard-screen {
-    padding-bottom: 90px; /* Space for tabs */
+    background: linear-gradient(145deg, #0D0221 0%, #1A0B3E 35%, #2D1B69 65%, #4B2A8A 100%);
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding-bottom: 120px;
+}
+
+/* === PARALLAX BACKGROUND SYSTEM === */
+.parallax-bg {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+/* Gradient Blobs — floating ambient light */
+.gradient-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.35;
+    animation: blobFloat 12s ease-in-out infinite alternate;
+}
+
+.blob-1 {
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, #FF6B9D 0%, transparent 70%);
+    top: -80px; left: -60px;
+    animation-duration: 14s;
+}
+
+.blob-2 {
+    width: 250px; height: 250px;
+    background: radial-gradient(circle, #7B68EE 0%, transparent 70%);
+    top: 40%; right: -80px;
+    animation-duration: 10s;
+    animation-delay: 3s;
+}
+
+.blob-3 {
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, #FFD700 0%, transparent 70%);
+    bottom: 10%; left: 20%;
+    animation-duration: 16s;
+    animation-delay: 6s;
+    opacity: 0.2;
+}
+
+@keyframes blobFloat {
+    0% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -20px) scale(1.1); }
+    66% { transform: translate(-20px, 15px) scale(0.95); }
+    100% { transform: translate(10px, -10px) scale(1.05); }
+}
+
+/* Magic Dust Particles */
+.magic-dust-container {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 2;
+    overflow: hidden;
+}
+
+.magic-star {
+    position: absolute;
+    background: #FFF;
+    border-radius: 50%;
+    animation: twinkleFloat 4s ease-in-out infinite alternate;
+}
+
+.magic-star.star-sm {
+    width: 3px; height: 3px;
+    box-shadow: 0 0 6px 2px rgba(255, 255, 255, 0.7);
+}
+
+.magic-star.star-md {
+    width: 5px; height: 5px;
+    box-shadow: 0 0 10px 3px rgba(255, 255, 255, 0.8), 0 0 20px 5px rgba(255, 215, 0, 0.4);
+}
+
+.magic-star.star-lg {
+    width: 7px; height: 7px;
+    box-shadow: 0 0 14px 5px rgba(255, 255, 255, 0.9), 0 0 30px 8px rgba(255, 215, 0, 0.6);
+}
+
+@keyframes twinkleFloat {
+    0% { transform: translateY(0) scale(0.8); opacity: 0.2; }
+    50% { opacity: 1; }
+    100% { transform: translateY(-25px) scale(1.3); opacity: 0.5; }
+}
+
+/* Shooting Stars */
+.shooting-star {
+    position: absolute;
+    width: 80px; height: 2px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.9), transparent);
+    border-radius: 2px;
+    opacity: 0;
+    transform: rotate(-35deg);
+    animation: shoot 8s ease-in infinite;
+}
+
+@keyframes shoot {
+    0% { opacity: 0; transform: translateX(0) translateY(0) rotate(-35deg); }
+    2% { opacity: 1; }
+    5% { opacity: 0; transform: translateX(-200px) translateY(120px) rotate(-35deg); }
+    100% { opacity: 0; }
+}
+
+/* Hero Watermark */
+.dashboard-bg-watermark {
+    position: absolute;
+    top: -50px;
+    right: -100px;
+    width: 550px;
+    height: 550px;
+    background-image: url('img/hero1.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0.08;
+    z-index: 1;
+    pointer-events: none;
+    transform: rotate(5deg);
+    filter: brightness(1.5);
 }
 
 .dashboard-header {
@@ -593,6 +721,9 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 24px;
+    position: relative;
+    z-index: 10;
+    color: white;
 }
 
 .dashboard-header .user-info {
@@ -603,29 +734,32 @@ body {
 
 .dashboard-header .avatar {
     font-size: 32px;
-    background-color: #FFF;
+    background-color: rgba(255,255,255,0.15);
     width: 48px;
     height: 48px;
     display: flex;
     justify-content: center;
     align-items: center;
     border-radius: 50%;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }
 
-.dashboard-header h3 {
+.dashboard-header h3, .dashboard-header .user-info h3, .dashboard-header .user-info p {
     font-size: 18px;
     font-weight: 700;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
 
 .dashboard-header p {
     font-size: 13px;
-    color: var(--text-light);
+    color: rgba(255,255,255,0.7);
 }
 
 .tokens-badge {
-    background-color: rgba(255, 142, 122, 0.12);
-    color: var(--primary-dark);
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
     font-weight: 700;
     font-size: 13px;
     padding: 8px 14px;
@@ -633,70 +767,6 @@ body {
     display: flex;
     align-items: center;
     gap: 6px;
-}
-
-/* Dashboard Premium Background (Magical Night) */
-#dashboard-screen {
-    background: linear-gradient(145deg, #1A0B2E 0%, #2A1B54 50%, #4B2A75 100%);
-    position: relative;
-    overflow-x: hidden;
-    overflow-y: auto;
-}
-
-/* Magic Dust Particles */
-.magic-dust-container {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    pointer-events: none;
-    z-index: 1;
-}
-
-.magic-star {
-    position: absolute;
-    width: 4px;
-    height: 4px;
-    background: #FFF;
-    border-radius: 50%;
-    box-shadow: 0 0 10px 3px rgba(255, 255, 255, 0.8), 0 0 20px 5px rgba(255, 215, 0, 0.5);
-    animation: twinkleFloat 4s ease-in-out infinite alternate;
-}
-
-@keyframes twinkleFloat {
-    0% { transform: translateY(0) scale(0.8); opacity: 0.3; }
-    50% { opacity: 1; box-shadow: 0 0 15px 5px rgba(255, 255, 255, 1), 0 0 30px 10px rgba(255, 215, 0, 0.8); }
-    100% { transform: translateY(-20px) scale(1.2); opacity: 0.6; }
-}
-
-.dashboard-bg-watermark {
-    position: absolute;
-    top: -50px;
-    right: -100px;
-    width: 600px;
-    height: 600px;
-    background-image: url('img/hero1.png');
-    background-size: contain;
-    background-repeat: no-repeat;
-    opacity: 0.12;
-    z-index: 0;
-    pointer-events: none;
-    transform: rotate(5deg);
-}
-
-.dashboard-header {
-    position: relative;
-    z-index: 10;
-    color: white; /* Contrast against dark background */
-}
-
-.dashboard-header .user-info h3, .dashboard-header .user-info p {
-    color: white;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-}
-
-.tokens-badge {
-    background: rgba(255, 255, 255, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    color: white;
     box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
 }
 
@@ -731,7 +801,7 @@ body {
     font-family: inherit;
     font-size: 11px;
     font-weight: 600;
-    color: var(--text-light);
+    color: rgba(255,255,255,0.5);
     gap: 4px;
     cursor: pointer;
     width: 25%;
@@ -741,17 +811,18 @@ body {
 .tab-btn svg {
     width: 24px;
     height: 24px;
-    fill: var(--text-light);
+    fill: rgba(255,255,255,0.5);
     transition: var(--transition);
 }
 
 .tab-btn.active {
-    color: var(--primary);
+    color: #FFD700;
 }
 
 .tab-btn.active svg {
-    fill: var(--primary);
-    transform: scale(1.1);
+    fill: #FFD700;
+    transform: scale(1.15);
+    filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.6));
 }
 
 /* Tab container content show/hide */
@@ -779,23 +850,47 @@ body {
 
 /* 3D Immersive Cards */
 .card {
-    background: rgba(255, 255, 255, 0.85);
-    border-radius: 32px;
+    background: rgba(255, 255, 255, 0.92);
+    border-radius: 28px;
     padding: 28px 24px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25), 
-                inset 0 2px 10px rgba(255, 255, 255, 1); /* Inner glow */
-    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2), 
+                inset 0 1px 0 rgba(255, 255, 255, 1);
+    border: 1px solid rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     position: relative;
+    overflow: visible;
+}
+
+/* Gradient top accent line */
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 24px; right: 24px;
+    height: 4px;
+    border-radius: 0 0 4px 4px;
+    background: linear-gradient(90deg, var(--primary), #FFD700, #7B68EE);
+    opacity: 0.8;
 }
 
 .card:hover {
-    transform: translateY(-5px) scale(1.02);
+    transform: translateY(-4px) scale(1.01);
     box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3), 
-                0 0 30px rgba(255, 215, 0, 0.2), /* Magical outer glow */
-                inset 0 2px 15px rgba(255, 255, 255, 1);
+                0 0 20px rgba(255, 215, 0, 0.15);
+}
+
+/* Card type accents */
+.generator-card::before {
+    background: linear-gradient(90deg, #FF6B6B, #FFD93D, #FF8E7A);
+}
+
+.tasks-summary-card::before {
+    background: linear-gradient(90deg, #65C466, #A1E3D4, #FFD700);
+}
+
+.profile-info-card::before {
+    background: linear-gradient(90deg, #7B68EE, #E5D5FF, #FF8E7A);
 }
 
 /* Out-of-bounds Card Hero Decorators */
@@ -829,9 +924,7 @@ body {
     z-index: 10;
 }
 
-.card:hover {
-    box-shadow: var(--box-shadow-hover);
-}
+/* (card:hover is defined above in the 3D Immersive Cards section) */
 
 .card h2 {
     font-size: 18px;
@@ -868,6 +961,71 @@ body {
     font-size: 14px;
     color: #7A4F1D;
     text-align: center;
+}
+
+/* Dashboard section headers (on dark bg) */
+.stories-header,
+.tasks-header {
+    color: white;
+    position: relative;
+    z-index: 10;
+}
+
+.stories-header h2,
+.tasks-header h2 {
+    font-size: 22px;
+    font-weight: 800;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.stories-header p,
+.tasks-header p {
+    font-size: 14px;
+    color: rgba(255,255,255,0.6);
+    margin-top: 4px;
+}
+
+/* Empty state */
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: rgba(255,255,255,0.5);
+}
+
+.empty-state .icon {
+    font-size: 48px;
+    display: block;
+    margin-bottom: 12px;
+}
+
+.empty-state p {
+    font-size: 14px;
+    color: rgba(255,255,255,0.4);
+}
+
+/* Progress bar on dark bg */
+.progress-bar-container {
+    background: rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 3px;
+    position: relative;
+    margin-bottom: 16px;
+}
+
+.progress-bar-fill {
+    height: 8px;
+    background: linear-gradient(90deg, var(--primary), #FFD700);
+    border-radius: 10px;
+    transition: width 0.5s ease;
+}
+
+#tasks-progress-text {
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+    display: block;
+    text-align: right;
+    margin-top: 4px;
 }
 
 /* Home / Dashboard sub components */
