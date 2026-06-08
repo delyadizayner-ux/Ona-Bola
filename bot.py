@@ -17,8 +17,14 @@ TOKEN = os.getenv("TELEGRAM_TOKEN", "8865315152:AAFZ65EzM8wW62SHqtZy4GYHqAEkU5jH
 WEBAPP_URL = os.getenv("WEBAPP_URL", "https://ona-bola-vo1p.vercel.app" if os.environ.get("VERCEL") else "http://127.0.0.1:5000")
 bot = telebot.TeleBot(TOKEN)
 
-# Initialize Flask app to serve frontend from 'static' folder
 app = Flask(__name__, static_folder='static', static_url_path='')
+
+@app.after_request
+def add_header(r):
+    r.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    r.headers["Pragma"] = "no-cache"
+    r.headers["Expires"] = "0"
+    return r
 
 # Initialize Database
 db.init_db()
