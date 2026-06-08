@@ -146,6 +146,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             problems: ["behavior"]
                         };
                     }
+                    localStorage.setItem("onabola_logged_in", "true");
                     showScreen("dashboard-screen");
                     loadDashboardData();
                 }
@@ -1636,6 +1637,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 
                 updateUI();
                 
+                // Save logged in state in localStorage
+                localStorage.setItem("onabola_logged_in", "true");
+                
                 // Update dashboard inner elements
                 const dashChildName = document.getElementById('dash-child-name');
                 if (dashChildName) dashChildName.innerText = `${currentChild.name} Profili`;
@@ -1658,7 +1662,57 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     // Initial Startup flow
-    setTimeout(() => {
+    setTimeout(async () => {
+        const loggedInBefore = localStorage.getItem("onabola_logged_in") === "true";
+        if (loggedInBefore && telegramId) {
+            try {
+                const response = await fetch("/api/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        initData: initData,
+                        telegram_id: telegramId,
+                        username: username,
+                        full_name: fullName,
+                        referred_by: referredBy
+                    })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    currentUser = data.user;
+                    currentChild = data.child;
+                    
+                    updateUI();
+                    
+                    if (data.samples_count) {
+                        updateVoiceCloneStatus(data.samples_count);
+                        
+                        const m = data.samples_count.mother || 0;
+                        const f = data.samples_count.father || 0;
+                        if (m >= 3 && f >= 3) {
+                            currentDuoIndex = 6;
+                        } else if (m < 3) {
+                            currentDuoIndex = m;
+                        } else {
+                            currentDuoIndex = 3 + f;
+                        }
+                        updateDuoWizard();
+                    } else {
+                        currentDuoIndex = 0;
+                        updateDuoWizard();
+                    }
+
+                    if (currentUser.mother_name || currentUser.father_name || currentChild) {
+                        showScreen("dashboard-screen");
+                        loadDashboardData();
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.error("Auto-login failed, showing onboarding carousel:", e);
+            }
+        }
+
         showScreen("carousel-screen");
         initVerticalScroll();
     }, 1500); // 1.5s loading animation

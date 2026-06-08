@@ -2236,7 +2236,7 @@ body {
 
 .duo-character {
     position: absolute;
-    bottom: 20px;
+    bottom: 42px;
     left: 50%;
     transform: translateX(-50%);
     width: 80px;
