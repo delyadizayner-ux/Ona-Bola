@@ -148,7 +148,6 @@ body {
 
 .scene-content {
     text-align: center;
-    z-index: 2;
     padding: 20px;
     width: 100%;
     max-width: 450px;
@@ -182,17 +181,14 @@ body {
     max-width: 380px;
     aspect-ratio: 1/1;
     margin: 0 auto;
-    /* Removed the weird radial gradient that made a square */
+    /* Move mix-blend-mode here because animations on this wrapper create a stacking context */
+    mix-blend-mode: multiply;
 }
 
 .hero-img {
     width: 100%;
     height: 100%;
     object-fit: contain;
-    position: relative;
-    z-index: 2;
-    /* PROFESSIONAL DESIGN TRICK: Multiply blends the white background into the color background seamlessly! */
-    mix-blend-mode: multiply;
     filter: contrast(1.05) saturate(1.1);
 }
 
