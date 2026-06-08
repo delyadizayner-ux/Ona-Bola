@@ -206,22 +206,40 @@ def save_child_profile(telegram_id, name, age, favorite_hero, favorite_animal, f
         cursor.execute("SELECT mother_name, father_name, full_name FROM users WHERE telegram_id = ?", (telegram_id,))
         user_row = cursor.fetchone()
         
-        curr_m = mother_name if mother_name else (user_row['mother_name'] if user_row else None)
-        curr_f = father_name if father_name else (user_row['father_name'] if user_row else None)
-        
-        full_name = ""
-        if curr_m and curr_f:
-            full_name = f"{curr_m} & {curr_f}"
-        elif curr_m:
-            full_name = curr_m
-        elif curr_f:
-            full_name = curr_f
+        if not user_row:
+            # Create user in database first
+            full_name = ""
+            if mother_name and father_name:
+                full_name = f"{mother_name} & {father_name}"
+            elif mother_name:
+                full_name = mother_name
+            elif father_name:
+                full_name = father_name
+                
+            cursor.execute("""
+            INSERT INTO users (telegram_id, username, full_name, mother_name, father_name, bonus_tokens)
+            VALUES (?, ?, ?, ?, ?, 3)
+            """, (telegram_id, f"user_{telegram_id}", full_name, mother_name, father_name))
             
-        cursor.execute("""
-        UPDATE users 
-        SET mother_name = ?, father_name = ?, full_name = ?
-        WHERE telegram_id = ?
-        """, (curr_m, curr_f, full_name, telegram_id))
+            curr_m = mother_name
+            curr_f = father_name
+        else:
+            curr_m = mother_name if mother_name else user_row['mother_name']
+            curr_f = father_name if father_name else user_row['father_name']
+            
+            full_name = ""
+            if curr_m and curr_f:
+                full_name = f"{curr_m} & {curr_f}"
+            elif curr_m:
+                full_name = curr_m
+            elif curr_f:
+                full_name = curr_f
+                
+            cursor.execute("""
+            UPDATE users 
+            SET mother_name = ?, father_name = ?, full_name = ?
+            WHERE telegram_id = ?
+            """, (curr_m, curr_f, full_name, telegram_id))
     
     # Check if user has child profile already
     cursor.execute("SELECT id FROM children WHERE user_id = ?", (telegram_id,))

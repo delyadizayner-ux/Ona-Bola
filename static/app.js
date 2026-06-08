@@ -121,17 +121,20 @@ document.addEventListener("DOMContentLoaded", () => {
                     updateVoiceCloneStatus(data.samples_count);
                 }
 
-                if (!currentChild) {
-                    // Foydalanuvchi profil to'ldirib o'tirmasligi uchun avtomatik kichkintoy profili yaratamiz
-                    currentChild = {
-                        name: "Kichkintoy",
-                        age: 4,
-                        problems: ["behavior"]
-                    };
+                if (!currentUser.mother_name && !currentUser.father_name && !data.child) {
+                    showScreen("profile-setup-screen");
+                    generateChildrenFields();
+                } else {
+                    if (!currentChild) {
+                        currentChild = {
+                            name: "Kichkintoy",
+                            age: 4,
+                            problems: ["behavior"]
+                        };
+                    }
+                    showScreen("dashboard-screen");
+                    loadDashboardData();
                 }
-                
-                showScreen("dashboard-screen");
-                loadDashboardData();
             } else {
                 showAlert("Tizimga kirishda xatolik yuz berdi.");
             }
@@ -1263,15 +1266,17 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     // Flow 2: Simulate Telegram Login and go to Profile Setup
-    window.simulateTelegramLogin = function() {
+    window.simulateTelegramLogin = async function() {
         triggerHaptic();
-        // Simulate grabbing name from Telegram (mock)
-        const tgName = "Malika"; // In real app, this would be window.Telegram.WebApp.initDataUnsafe.user.first_name
-        const motherInput = document.getElementById('mother-name');
-        if (motherInput) motherInput.value = tgName;
         
-        showScreen("profile-setup-screen");
-        generateChildrenFields(); // Generate initial field
+        // Log in the user first (creates user in database and retrieves state)
+        await loginUser();
+        
+        // If they were redirected to profile-setup-screen, populate it
+        const motherInput = document.getElementById('mother-name');
+        if (motherInput && !motherInput.value) {
+            motherInput.value = "Malika"; // Grabbing name from Telegram mock
+        }
     };
 
     // Dynamic Form Generation
