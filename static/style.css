@@ -717,11 +717,12 @@ body {
     background-image: url('img/hero1.png');
     background-size: contain;
     background-repeat: no-repeat;
-    opacity: 0.08;
+    opacity: 0.05;
     z-index: 1;
     pointer-events: none;
     transform: rotate(5deg);
-    filter: brightness(1.5);
+    filter: invert(1) brightness(1.2);
+    mix-blend-mode: screen;
 }
 
 .dashboard-header {
@@ -934,17 +935,37 @@ body {
 }
 
 /* Card Hero Decorators (inside card) */
-.card-hero-decorator {
+.card-hero-decorator-wrapper {
     position: absolute;
-    bottom: -5px;
-    right: 5px;
-    width: 120px;
-    opacity: 0.85;
-    pointer-events: none;
+    bottom: -15px;
+    right: 15px;
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background: #FFF;
+    box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2), 0 0 15px rgba(255, 255, 255, 0.4);
     z-index: 5;
-    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
-    transform-origin: bottom center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    border: 1.5px solid rgba(255, 255, 255, 0.3);
     animation: heroBreathe 4s ease-in-out infinite alternate;
+}
+
+.card-hero-decorator-wrapper.right-side {
+    top: 15px;
+    right: 15px;
+    bottom: auto;
+    width: 80px;
+    height: 80px;
+}
+
+.card-hero-decorator {
+    width: 85%;
+    height: 85%;
+    object-fit: contain;
+    mix-blend-mode: multiply;
 }
 
 @keyframes heroBreathe {
@@ -2234,15 +2255,29 @@ body {
     opacity: 0.85;
 }
 
-.duo-character {
+.duo-character-wrapper {
     position: absolute;
     bottom: 42px;
     left: 50%;
     transform: translateX(-50%);
     width: 80px;
     height: 80px;
-    object-fit: contain;
+    border-radius: 50%;
+    background: #FFF;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 40px rgba(255, 215, 0, 0.4);
     z-index: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+.duo-character {
+    width: 85%;
+    height: 85%;
+    object-fit: contain;
+    mix-blend-mode: multiply;
 }
 
 .duo-next-btn {
