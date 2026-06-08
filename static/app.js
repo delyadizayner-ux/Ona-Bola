@@ -121,12 +121,17 @@ document.addEventListener("DOMContentLoaded", () => {
                     updateVoiceCloneStatus(data.samples_count);
                 }
 
-                if (currentChild) {
-                    showScreen("dashboard-screen");
-                    loadDashboardData();
-                } else {
-                    showScreen("onboarding-screen");
+                if (!currentChild) {
+                    // Foydalanuvchi profil to'ldirib o'tirmasligi uchun avtomatik kichkintoy profili yaratamiz
+                    currentChild = {
+                        name: "Kichkintoy",
+                        age: 4,
+                        problems: ["behavior"]
+                    };
                 }
+                
+                showScreen("dashboard-screen");
+                loadDashboardData();
             } else {
                 showAlert("Tizimga kirishda xatolik yuz berdi.");
             }
