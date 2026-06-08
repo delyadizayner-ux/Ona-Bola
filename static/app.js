@@ -1663,8 +1663,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Initial Startup flow
     setTimeout(async () => {
-        const loggedInBefore = localStorage.getItem("onabola_logged_in") === "true";
-        if (loggedInBefore && telegramId) {
+        // Attempt silent login on startup for any session if telegramId is present
+        if (telegramId) {
             try {
                 const response = await fetch("/api/login", {
                     method: "POST",
@@ -1702,14 +1702,20 @@ document.addEventListener("DOMContentLoaded", () => {
                         updateDuoWizard();
                     }
 
+                    // If profile is already set up in the database, skip onboarding and login screen
                     if (currentUser.mother_name || currentUser.father_name || currentChild) {
-                        showScreen("dashboard-screen");
-                        loadDashboardData();
-                        return;
+                        const loggedInBefore = localStorage.getItem("onabola_logged_in") === "true";
+                        // Auto-login real Telegram users, or browser testers who checked in before
+                        if (telegramId !== 999999 || loggedInBefore) {
+                            localStorage.setItem("onabola_logged_in", "true");
+                            showScreen("dashboard-screen");
+                            loadDashboardData();
+                            return;
+                        }
                     }
                 }
             } catch (e) {
-                console.error("Auto-login failed, showing onboarding carousel:", e);
+                console.error("Silent auto-login failed, showing onboarding carousel:", e);
             }
         }
 
