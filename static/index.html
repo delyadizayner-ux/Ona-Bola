@@ -125,9 +125,15 @@
                 <p class="form-subtitle">Farzandlaringiz uchun eng yaxshi tajribani yaratishimizga yordam bering.</p>
                 
                 <form id="profile-form" onsubmit="saveProfile(event)">
-                    <div class="input-group">
-                        <label>Ota yoki Ona ismingiz:</label>
-                        <input type="text" id="parent-name" placeholder="Masalan: Malika" required>
+                    <div class="input-row">
+                        <div class="input-group half">
+                            <label>Ona ismi:</label>
+                            <input type="text" id="mother-name" placeholder="Masalan: Malika" required>
+                        </div>
+                        <div class="input-group half">
+                            <label>Ota ismi (ixtiyoriy):</label>
+                            <input type="text" id="father-name" placeholder="Masalan: Jasur">
+                        </div>
                     </div>
                     
                     <div class="input-row">

@@ -1254,7 +1254,8 @@ document.addEventListener("DOMContentLoaded", () => {
         triggerHaptic();
         // Simulate grabbing name from Telegram (mock)
         const tgName = "Malika"; // In real app, this would be window.Telegram.WebApp.initDataUnsafe.user.first_name
-        document.getElementById('parent-name').value = tgName;
+        const motherInput = document.getElementById('mother-name');
+        if (motherInput) motherInput.value = tgName;
         
         showScreen("profile-setup-screen");
         generateChildrenFields(); // Generate initial field
@@ -1279,10 +1280,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 <h4 class="child-field-title">${i}-Farzand</h4>
                 <div class="input-row">
                     <div class="input-group">
-                        <input type="text" placeholder="Ismi" required>
+                        <input type="text" class="child-name-input" placeholder="Ismi" required>
                     </div>
                     <div class="input-group small">
-                        <input type="number" placeholder="Yoshi" min="0" max="18" required>
+                        <input type="number" class="child-age-input" placeholder="Yoshi" min="0" max="18" required>
                     </div>
                 </div>
             `;
@@ -1295,8 +1296,21 @@ document.addEventListener("DOMContentLoaded", () => {
         event.preventDefault();
         triggerHaptic();
         
-        // Here you would collect the data and send to backend
-        // For now, we just go to the dashboard
+        // Collect data
+        const motherName = document.getElementById('mother-name') ? document.getElementById('mother-name').value : '';
+        const fatherName = document.getElementById('father-name') ? document.getElementById('father-name').value : '';
+        
+        // Get first child name
+        const firstChildInput = document.querySelector('.child-name-input');
+        const childName = firstChildInput ? firstChildInput.value : "Farzandim";
+        
+        // Update dashboard header dynamically
+        const parentName = motherName || fatherName || "Ota-Ona";
+        const userNameEl = document.querySelector('.user-name');
+        if (userNameEl) {
+            userNameEl.innerText = `${parentName} & ${childName}`;
+        }
+        
         showScreen("dashboard-screen");
         triggerConfetti();
     };
