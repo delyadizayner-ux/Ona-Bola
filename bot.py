@@ -334,8 +334,12 @@ def api_generate_story():
             "error": "Sizda ertak yaratish uchun tokenlar tugadi. Premium obuna bo'ling yoki referral havola orqali do'stlarni taklif qiling!"
         }), 403
 
-    # Attempt to generate via OpenAI, fall back to offline templates
-    story_data = story_generator.generate_family_story_openai(kids, voice_mode)
+    # Try Gemini first, then Grok (xAI), then OpenAI, then offline templates
+    story_data = story_generator.generate_family_story_gemini(kids, voice_mode)
+    if not story_data:
+        story_data = story_generator.generate_family_story_xai(kids, voice_mode)
+    if not story_data:
+        story_data = story_generator.generate_family_story_openai(kids, voice_mode)
     if not story_data:
         story_data = story_generator.generate_family_story_offline(kids, voice_mode)
 

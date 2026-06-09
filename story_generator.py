@@ -86,20 +86,9 @@ def _reader_plan(voice_mode):
 
 
 # ---------------------------------------------------------------------------
-# AI (OpenAI) family-story generator
+# AI prompt building (shared by every OpenAI-compatible provider)
 # ---------------------------------------------------------------------------
-def generate_family_story_openai(children, voice_mode="none"):
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        return None
-
-    kids = _normalize_children(children)
-    if not kids:
-        return None
-
-    client = openai.OpenAI(api_key=api_key)
-
-    # Build a rich description of each child for the prompt
+def _build_story_prompt(kids, voice_mode):
     kids_desc = ""
     for i, c in enumerate(kids, 1):
         habits = ", ".join(HABIT_INFO.get(h, {}).get("label", h) for h in c["bad_habits"]) or "alohida yomon odati yo'q"
@@ -112,7 +101,6 @@ def generate_family_story_openai(children, voice_mode="none"):
             f"Yengilishi kerak bo'lgan yomon odat(lar)i: {habits}."
         )
 
-    readers = _reader_plan(voice_mode)
     if voice_mode == "both":
         voice_rule = (
             "Ertak ROSA 3 ta qismdan iborat bo'lsin. 1-qism ONA ovozida (mehrli, shivirlab), "
@@ -124,7 +112,7 @@ def generate_family_story_openai(children, voice_mode="none"):
     else:
         voice_rule = "Ertak 3 ta teng qismga (sahifaga) bo'linsin."
 
-    prompt = f"""
+    return f"""
 Sen O'zbekistonning eng mashhur bolalar ertakchilaridan birisan — sening ertaklaring kitob qilib nashr etiladi.
 Yozish uslubing mumtoz xalq ertaklariday ohangdor, she'riy, mehrga to'la va tarbiyaviy bo'lsin.
 
@@ -136,10 +124,11 @@ Ertak qoidalari:
 1. Har bir bolaning sevimli qahramoni, o'yinchog'i, eng yaqin do'sti va yoqtirgan mashg'uloti ertak voqealariga tabiiy ravishda qo'shilsin.
 2. Har bir bolaning yomon odati ertak ichida YUMSHOQ va ibratli tarzda ko'rsatilsin: bu odat nega yomonligini bola tushunsin va oxirida o'z xohishi bilan undan voz kechsin. Salbiy oqibatlar qo'rqitmasdan, mehr bilan tasvirlansin.
 3. Bolalarga bu yomon odatlardan voz kechish uchun ma'naviy ozuqa beradigan, ilhomlantiruvchi xulosa bo'lsin.
-4. {voice_rule}
-5. Javob FAQAT quyidagi JSON formatida bo'lsin, boshqa hech narsa qo'shma:
+4. Sarlavha (title) ertak mazmuniga MOS, jozibali, o'ziga xos va she'riy bo'lsin — bolaning ismi yoki ertak qahramoni/voqeasiga bog'lansin. "Nana Banana olamida" kabi umumiy nom QO'YMA.
+5. {voice_rule}
+6. Javob FAQAT quyidagi JSON formatida bo'lsin, boshqa hech narsa qo'shma:
 {{
-  "title": "Ertak nomi",
+  "title": "Ertak mazmuniga mos jozibali sarlavha",
   "moral": "Ertakdan kelib chiqadigan ibratli, qisqa xulosa",
   "task": "Bolalar uchun bugungi kichik sehrli vazifa",
   "segments": [
@@ -150,9 +139,41 @@ Ertak qoidalari:
 }}
 """
 
+
+def _finalize_story(result, readers, voice_mode):
+    segs = result.get("segments") or []
+    segments = []
+    full_parts = []
+    for idx in range(3):
+        text = segs[idx].get("text", "") if idx < len(segs) else ""
+        full_parts.append(text)
+        segments.append({"reader": readers[idx], "text": text})
+
+    return {
+        "title": result.get("title", "Sehrli Ertak"),
+        "story": "\n\n".join(p for p in full_parts if p),
+        "moral": result.get("moral", ""),
+        "task": result.get("task", ""),
+        "segments": segments,
+        "voice_mode": voice_mode,
+    }
+
+
+def _generate_openai_compatible(children, voice_mode, *, api_key, model, provider, base_url=None):
+    """Generate a story via any OpenAI-compatible chat API (OpenAI, xAI/Grok, ...)."""
+    if not api_key:
+        return None
+    kids = _normalize_children(children)
+    if not kids:
+        return None
+
+    readers = _reader_plan(voice_mode)
+    prompt = _build_story_prompt(kids, voice_mode)
+
     try:
+        client = openai.OpenAI(api_key=api_key, base_url=base_url) if base_url else openai.OpenAI(api_key=api_key)
         response = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model=model,
             messages=[
                 {"role": "system", "content": "You are a helpful assistant that outputs only valid JSON."},
                 {"role": "user", "content": prompt},
@@ -160,26 +181,48 @@ Ertak qoidalari:
             response_format={"type": "json_object"},
         )
         result = json.loads(response.choices[0].message.content)
-
-        segs = result.get("segments") or []
-        segments = []
-        full_parts = []
-        for idx in range(3):
-            text = segs[idx].get("text", "") if idx < len(segs) else ""
-            full_parts.append(text)
-            segments.append({"reader": readers[idx], "text": text})
-
-        return {
-            "title": result.get("title", "Sehrli Ertak"),
-            "story": "\n\n".join(p for p in full_parts if p),
-            "moral": result.get("moral", ""),
-            "task": result.get("task", ""),
-            "segments": segments,
-            "voice_mode": voice_mode,
-        }
+        return _finalize_story(result, readers, voice_mode)
     except Exception as e:
-        print("OpenAI Error:", e)
+        print(f"{provider} Error:", e)
         return None
+
+
+# ---------------------------------------------------------------------------
+# Provider wrappers
+# ---------------------------------------------------------------------------
+def generate_family_story_gemini(children, voice_mode="none"):
+    """Gemini (Google) — primary AI provider. Needs GEMINI_API_KEY (+ optional GEMINI_MODEL).
+
+    Uses Google's OpenAI-compatible endpoint so the same client logic is reused.
+    """
+    return _generate_openai_compatible(
+        children, voice_mode,
+        api_key=os.getenv("GEMINI_API_KEY"),
+        model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash"),
+        provider="Gemini",
+        base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
+    )
+
+
+def generate_family_story_xai(children, voice_mode="none"):
+    """Grok (xAI) — primary AI provider. Needs XAI_API_KEY (+ optional XAI_MODEL)."""
+    return _generate_openai_compatible(
+        children, voice_mode,
+        api_key=os.getenv("XAI_API_KEY"),
+        model=os.getenv("XAI_MODEL", "grok-3"),
+        provider="xAI (Grok)",
+        base_url="https://api.x.ai/v1",
+    )
+
+
+def generate_family_story_openai(children, voice_mode="none"):
+    """OpenAI — optional fallback. Needs OPENAI_API_KEY (+ optional OPENAI_MODEL)."""
+    return _generate_openai_compatible(
+        children, voice_mode,
+        api_key=os.getenv("OPENAI_API_KEY"),
+        model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
+        provider="OpenAI",
+    )
 
 
 # ---------------------------------------------------------------------------
