@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // 2. User State Management
     let currentUser = null;
     let currentChild = null;
+    let currentChildren = []; // full saved anketa for every child
     let activeTab = "tab-home";
     
     // Determine user data (Telegram dynamic query or fallbacks for browser testing)
@@ -122,7 +123,8 @@ document.addEventListener("DOMContentLoaded", () => {
             if (data.success) {
                 currentUser = data.user;
                 currentChild = data.child;
-                
+                currentChildren = data.children || (data.child ? [data.child] : []);
+
                 updateUI();
 
                 // Save to localStorage if we got user info
@@ -531,63 +533,56 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Render one anketa card per child, pre-filling the first one from the saved profile
-    window.renderStoryAnketa = function() {
-        const container = document.getElementById("wizard-anketa-container");
+    // Escape text for safe HTML content
+    function escHtml(s) {
+        return String(s == null ? "" : s).replace(/[&<>]/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[m]));
+    }
+    const habitLabelFor = (k) => {
+        const h = WIZARD_HABITS.find(x => x.key === k);
+        return h ? h.label : k;
+    };
+
+    // Wizard: show the SAVED children as selectable cards (no re-typing)
+    window.renderStorySelect = function() {
+        const container = document.getElementById("wizard-children-select");
         if (!container) return;
-        const countInput = document.getElementById("wizard-children-count");
-        let count = parseInt(countInput && countInput.value) || 1;
-        if (count < 1) count = 1;
-        if (count > 6) count = 6;
 
-        let html = "";
-        for (let i = 0; i < count; i++) {
-            const pre = (i === 0 && currentChild) ? currentChild : {};
-            const friend = pre.best_friend || pre.boy_friend_name || pre.girl_friend_name || "";
-            const problems = pre.problems || [];
-
-            const habitsHtml = WIZARD_HABITS.map(h => `
-                <label class="wizard-habit-opt">
-                    <input type="checkbox" class="wizard-habit" data-child="${i}" value="${h.key}" ${problems.includes(h.key) ? "checked" : ""}>
-                    <span>${h.label}</span>
-                </label>`).join("");
-
-            html += `
-            <div class="wizard-child-card" data-child="${i}">
-                <h3 class="wizard-child-title">👶 ${i + 1}-farzand</h3>
-                <div class="input-row">
-                    <div class="input-group">
-                        <label>Ismi</label>
-                        <input type="text" class="wizard-field" data-child="${i}" data-field="name" value="${escAttr(pre.name)}" placeholder="Masalan: Diyor" required>
-                    </div>
-                    <div class="input-group">
-                        <label>Yoshi</label>
-                        <input type="number" class="wizard-field" data-child="${i}" data-field="age" min="1" max="18" value="${escAttr(pre.age || 4)}" required>
-                    </div>
-                </div>
-                <div class="input-group">
-                    <label>Sevimli qahramoni</label>
-                    <input type="text" class="wizard-field" data-child="${i}" data-field="favorite_hero" value="${escAttr(pre.favorite_hero)}" placeholder="Masalan: Botir, Elza...">
-                </div>
-                <div class="input-group">
-                    <label>Sevimli o'yinchog'i</label>
-                    <input type="text" class="wizard-field" data-child="${i}" data-field="favorite_toy" value="${escAttr(pre.favorite_toy)}" placeholder="Masalan: ayiqcha, mashina...">
-                </div>
-                <div class="input-group">
-                    <label>Eng yaqin o'rtog'i</label>
-                    <input type="text" class="wizard-field" data-child="${i}" data-field="best_friend" value="${escAttr(friend)}" placeholder="Do'stining ismi">
-                </div>
-                <div class="input-group">
-                    <label>Yoqtirgan mashg'uloti</label>
-                    <input type="text" class="wizard-field" data-child="${i}" data-field="hobby" value="${escAttr(pre.hobby)}" placeholder="Masalan: rasm chizish, futbol...">
-                </div>
-                <div class="input-group">
-                    <label>Yengishi kerak bo'lgan salbiy odat(lar)i</label>
-                    <p class="wizard-hint">Belgilangan odatlar ertakda yumshoq, ibratli tarzda tuzatiladi.</p>
-                    <div class="wizard-habits">${habitsHtml}</div>
-                </div>
-            </div>`;
+        if (!currentChildren || currentChildren.length === 0) {
+            container.innerHTML = `
+                <div class="wizard-empty">
+                    <p>Hali farzand anketasi to'ldirilmagan.</p>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="goToEditProfileFromWizard()">📝 Profilni to'ldirish</button>
+                </div>`;
+            return;
         }
-        container.innerHTML = html;
+
+        container.innerHTML = currentChildren.map((c, i) => {
+            const friend = c.best_friend || c.boy_friend_name || c.girl_friend_name || "";
+            const problems = c.problems || c.bad_habits || [];
+            const chips = problems.length
+                ? problems.map(k => `<span class="sel-habit-chip">${escHtml(habitLabelFor(k))}</span>`).join("")
+                : `<span class="sel-habit-chip muted">Salbiy odat belgilanmagan</span>`;
+            const facts = [
+                c.favorite_hero && `🦸 ${c.favorite_hero}`,
+                c.favorite_toy && `🧸 ${c.favorite_toy}`,
+                friend && `👫 ${friend}`,
+                c.hobby && `🎨 ${c.hobby}`,
+            ].filter(Boolean).map(escHtml).join(" · ");
+
+            return `
+            <label class="select-child-card">
+                <input type="checkbox" class="select-child" data-index="${i}" checked>
+                <div class="select-child-body">
+                    <div class="select-child-head">
+                        <span class="select-child-name">${escHtml(c.name)}</span>
+                        <span class="select-child-age">${escHtml(c.age)} yosh</span>
+                    </div>
+                    ${facts ? `<div class="select-child-facts">${facts}</div>` : ""}
+                    <div class="select-child-habits">${chips}</div>
+                </div>
+                <span class="select-check">✓</span>
+            </label>`;
+        }).join("");
     };
 
     // Back button on the wizard
@@ -596,14 +591,18 @@ document.addEventListener("DOMContentLoaded", () => {
         showScreen("dashboard-screen");
     };
 
+    // From the wizard's empty state, jump to the profile anketa
+    window.goToEditProfileFromWizard = function() {
+        triggerHaptic();
+        openEditProfile();
+    };
+
     // Open the wizard from the dashboard
     const openWizardBtn = document.getElementById("btn-open-story-wizard");
     if (openWizardBtn) {
         openWizardBtn.addEventListener("click", () => {
             triggerHaptic();
-            const countInput = document.getElementById("wizard-children-count");
-            if (countInput) countInput.value = 1;
-            renderStoryAnketa();
+            renderStorySelect();
             showScreen("story-wizard-screen");
         });
     }
@@ -616,28 +615,24 @@ document.addEventListener("DOMContentLoaded", () => {
         const voiceModeEl = document.querySelector('#wizard-voice-mode input[name="voice_mode"]:checked');
         const voiceMode = voiceModeEl ? voiceModeEl.value : "none";
 
+        // Use the SAVED anketa of the selected children (no re-typing)
         const children = [];
-        document.querySelectorAll(".wizard-child-card").forEach(card => {
-            const getVal = (field) => {
-                const el = card.querySelector(`.wizard-field[data-field="${field}"]`);
-                return el ? el.value.trim() : "";
-            };
-            const name = getVal("name");
-            if (!name) return; // skip empty children
-            const habits = Array.from(card.querySelectorAll(".wizard-habit:checked")).map(c => c.value);
+        document.querySelectorAll(".select-child:checked").forEach(cb => {
+            const c = currentChildren[parseInt(cb.dataset.index)];
+            if (!c) return;
             children.push({
-                name,
-                age: parseInt(getVal("age")) || 4,
-                favorite_hero: getVal("favorite_hero"),
-                favorite_toy: getVal("favorite_toy"),
-                best_friend: getVal("best_friend"),
-                hobby: getVal("hobby"),
-                bad_habits: habits,
+                name: c.name,
+                age: c.age,
+                favorite_hero: c.favorite_hero || "",
+                favorite_toy: c.favorite_toy || "",
+                best_friend: c.best_friend || c.boy_friend_name || c.girl_friend_name || "",
+                hobby: c.hobby || "",
+                bad_habits: c.problems || c.bad_habits || [],
             });
         });
 
         if (children.length === 0) {
-            showAlert("Iltimos, kamida bitta farzandning ismini kiriting!");
+            showAlert("Iltimos, kamida bitta farzandni tanlang!");
             return;
         }
 
@@ -1561,35 +1556,26 @@ document.addEventListener("DOMContentLoaded", () => {
         showAlert("Ertakdagi tarbiyaviy vazifa bolaning kunlik vazifalar ro'yxatiga qo'shildi!");
     });
 
-    // 7. Edit Profile Button
-    document.getElementById("btn-edit-profile").addEventListener("click", () => {
-        triggerHaptic();
-        
-        // Populate mother and father names
+    // Open the profile anketa, prefilled from saved data
+    window.openEditProfile = function() {
         if (currentUser) {
             const motherInput = document.getElementById("mother-name");
             if (motherInput) motherInput.value = currentUser.mother_name || "";
-            
             const fatherInput = document.getElementById("father-name");
             if (fatherInput) fatherInput.value = currentUser.father_name || "";
         }
-        
-        // Populate children fields
-        if (currentChild) {
-            const countInput = document.getElementById("children-count");
-            if (countInput) countInput.value = 1; // currently supporting single child edits
-            
-            generateChildrenFields(); // generate the inputs
-            
-            // Populate child name and age
-            const childNameInput = document.querySelector(".child-name-input");
-            if (childNameInput) childNameInput.value = currentChild.name || "";
-            
-            const childAgeInput = document.querySelector(".child-age-input");
-            if (childAgeInput) childAgeInput.value = currentChild.age || "";
-        }
-        
+        // Match the count to saved children, then render the full anketa (prefilled)
+        const countInput = document.getElementById("children-count");
+        const n = (currentChildren && currentChildren.length) ? currentChildren.length : 1;
+        if (countInput) countInput.value = n;
+        generateChildrenFields();
         showScreen("profile-setup-screen");
+    };
+
+    // 7. Edit Profile Button
+    document.getElementById("btn-edit-profile").addEventListener("click", () => {
+        triggerHaptic();
+        openEditProfile();
     });
 
     // 8. Subscription Simulation
@@ -1689,52 +1675,106 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     // Dynamic Form Generation
+    // Build one full anketa card (shared markup; pre = saved child to prefill)
+    function buildAnketaCard(i, pre) {
+        pre = pre || {};
+        const friend = pre.best_friend || pre.boy_friend_name || pre.girl_friend_name || "";
+        const problems = pre.problems || pre.bad_habits || [];
+        const habitsHtml = WIZARD_HABITS.map(h => `
+            <label class="wizard-habit-opt">
+                <input type="checkbox" class="wizard-habit" data-child="${i}" value="${h.key}" ${problems.includes(h.key) ? "checked" : ""}>
+                <span>${h.label}</span>
+            </label>`).join("");
+
+        return `
+        <div class="wizard-child-card" data-child="${i}">
+            <h3 class="wizard-child-title">👶 ${i + 1}-farzand</h3>
+            <div class="input-row">
+                <div class="input-group">
+                    <label>Ismi</label>
+                    <input type="text" class="wizard-field" data-child="${i}" data-field="name" value="${escAttr(pre.name)}" placeholder="Masalan: Diyor" required>
+                </div>
+                <div class="input-group">
+                    <label>Yoshi</label>
+                    <input type="number" class="wizard-field" data-child="${i}" data-field="age" min="1" max="18" value="${escAttr(pre.age || 4)}" required>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>Sevimli qahramoni</label>
+                <input type="text" class="wizard-field" data-child="${i}" data-field="favorite_hero" value="${escAttr(pre.favorite_hero)}" placeholder="Masalan: Botir, Elza...">
+            </div>
+            <div class="input-group">
+                <label>Sevimli o'yinchog'i</label>
+                <input type="text" class="wizard-field" data-child="${i}" data-field="favorite_toy" value="${escAttr(pre.favorite_toy)}" placeholder="Masalan: ayiqcha, mashina...">
+            </div>
+            <div class="input-group">
+                <label>Eng yaqin o'rtog'i</label>
+                <input type="text" class="wizard-field" data-child="${i}" data-field="best_friend" value="${escAttr(friend)}" placeholder="Do'stining ismi">
+            </div>
+            <div class="input-group">
+                <label>Yoqtirgan mashg'uloti / qiziqishi</label>
+                <input type="text" class="wizard-field" data-child="${i}" data-field="hobby" value="${escAttr(pre.hobby)}" placeholder="Masalan: rasm chizish, futbol...">
+            </div>
+            <div class="input-group">
+                <label>Yengishi kerak bo'lgan salbiy odat(lar)i</label>
+                <p class="wizard-hint">Belgilangan odatlar ertakda yumshoq, ibratli tarzda tuzatiladi.</p>
+                <div class="wizard-habits">${habitsHtml}</div>
+            </div>
+        </div>`;
+    }
+
+    // Render the profile anketa: one full card per child, prefilled from saved data
     window.generateChildrenFields = function() {
         const countInput = document.getElementById('children-count');
-        let count = parseInt(countInput.value) || 1;
-        
-        // Boundaries
-        if (count < 1) { count = 1; countInput.value = 1; }
-        if (count > 10) { count = 10; countInput.value = 10; }
-        
+        let count = parseInt(countInput && countInput.value) || 1;
+        if (count < 1) { count = 1; if (countInput) countInput.value = 1; }
+        if (count > 6) { count = 6; if (countInput) countInput.value = 6; }
+
         const container = document.getElementById('children-fields-container');
-        container.innerHTML = ''; // Clear existing
-        
-        for (let i = 1; i <= count; i++) {
-            const childGroup = document.createElement('div');
-            childGroup.className = 'child-field-group';
-            childGroup.innerHTML = `
-                <h4 class="child-field-title">${i}-Farzand</h4>
-                <div class="input-row no-stack">
-                    <div class="input-group">
-                        <input type="text" class="child-name-input" placeholder="Ismi" required>
-                    </div>
-                    <div class="input-group small">
-                        <input type="number" class="child-age-input" placeholder="Yoshi" min="0" max="18" required>
-                    </div>
-                </div>
-            `;
-            container.appendChild(childGroup);
+        let html = "";
+        for (let i = 0; i < count; i++) {
+            html += buildAnketaCard(i, currentChildren[i]);
         }
+        container.innerHTML = html;
     };
+
+    // Collect the full anketa of every child from the rendered cards
+    function collectAnketaChildren() {
+        const children = [];
+        document.querySelectorAll('#children-fields-container .wizard-child-card').forEach(card => {
+            const getVal = (field) => {
+                const el = card.querySelector(`.wizard-field[data-field="${field}"]`);
+                return el ? el.value.trim() : "";
+            };
+            const name = getVal("name");
+            if (!name) return;
+            const habits = Array.from(card.querySelectorAll(".wizard-habit:checked")).map(c => c.value);
+            children.push({
+                name,
+                age: parseInt(getVal("age")) || 4,
+                favorite_hero: getVal("favorite_hero"),
+                favorite_toy: getVal("favorite_toy"),
+                best_friend: getVal("best_friend"),
+                hobby: getVal("hobby"),
+                bad_habits: habits,
+            });
+        });
+        return children;
+    }
 
     // Flow 3: Save Profile and go to Dashboard
     window.saveProfile = async function(event) {
         event.preventDefault();
         triggerHaptic();
-        
-        // Collect data
+
         const motherName = document.getElementById('mother-name') ? document.getElementById('mother-name').value.trim() : '';
         const fatherName = document.getElementById('father-name') ? document.getElementById('father-name').value.trim() : '';
-        
-        // Get first child name
-        const firstChildInput = document.querySelector('.child-name-input');
-        const childName = firstChildInput ? firstChildInput.value.trim() : "Farzandim";
-        
-        const firstChildAgeInput = document.querySelector('.child-age-input');
-        const childAge = firstChildAgeInput ? parseInt(firstChildAgeInput.value) || 4 : 4;
-        
-        const childProblems = (currentChild && currentChild.problems) ? currentChild.problems : ['behavior'];
+
+        const children = collectAnketaChildren();
+        if (children.length === 0) {
+            showAlert("Iltimos, kamida bitta farzandning ismini kiriting!");
+            return;
+        }
 
         const submitBtn = event.target.querySelector('button[type="submit"]');
         const originalText = submitBtn.innerText;
@@ -1747,40 +1787,20 @@ document.addEventListener("DOMContentLoaded", () => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     telegram_id: telegramId,
-                    name: childName,
-                    age: childAge,
                     mother_name: motherName,
                     father_name: fatherName,
-                    problems: childProblems
+                    children: children
                 })
             });
             const data = await res.json();
             if (data.success) {
                 currentUser = data.user;
                 currentChild = data.child;
-                
+                currentChildren = data.children || (data.child ? [data.child] : []);
+
                 updateUI();
-                
-                // Save logged in state in localStorage
                 localStorage.setItem("onabola_logged_in", "true");
 
-                // Save profile details to localStorage for persistence
-                const profileToSave = {
-                    mother_name: motherName,
-                    father_name: fatherName,
-                    child_name: childName,
-                    child_age: childAge,
-                    problems: childProblems
-                };
-                localStorage.setItem("onabola_profile", JSON.stringify(profileToSave));
-                
-                // Update dashboard inner elements
-                const dashChildName = document.getElementById('dash-child-name');
-                if (dashChildName) dashChildName.innerText = `${currentChild.name} Profili`;
-                
-                const dashChildAge = document.getElementById('dash-child-age');
-                if (dashChildAge) dashChildAge.innerText = `${currentChild.age} yosh`;
-                
                 showScreen("dashboard-screen");
                 loadDashboardData();
             } else {
@@ -1815,7 +1835,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (data.success) {
                     currentUser = data.user;
                     currentChild = data.child;
-                    
+                    currentChildren = data.children || (data.child ? [data.child] : []);
+
                     updateUI();
                     
                     if (data.samples_count) {

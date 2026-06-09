@@ -210,8 +210,9 @@ def api_login():
         
     # Get or create user
     user = db.create_user(telegram_id, username, full_name, referred_by=referred_by)
-    child = db.get_child_profile(telegram_id)
-    
+    children = db.get_children(telegram_id)
+    child = children[0] if children else None
+
     return jsonify({
         "success": True,
         "user": {
@@ -226,6 +227,7 @@ def api_login():
             "referral_code": user["referral_code"]
         },
         "child": child,
+        "children": children,
         "samples_count": db.get_voice_samples_count(telegram_id)
     })
 
@@ -240,26 +242,36 @@ def api_save_profile():
     except (ValueError, TypeError):
         return jsonify({"error": "Invalid user ID"}), 400
         
-    name = data.get("name")
-    age = int(data.get("age", 0))
-    favorite_hero = data.get("favorite_hero", "")
-    favorite_animal = data.get("favorite_animal", "")
-    favorite_toy = data.get("favorite_toy", "")
-    boy_friend = data.get("boy_friend", "")
-    girl_friend = data.get("girl_friend", "")
-    problems = data.get("problems", [])
     mother_name = data.get("mother_name", "")
     father_name = data.get("father_name", "")
-    
-    child = db.save_child_profile(
-        telegram_id, name, age, favorite_hero, favorite_animal, favorite_toy, boy_friend, girl_friend, problems,
-        mother_name=mother_name, father_name=father_name
-    )
+    children_payload = data.get("children")
+
+    if children_payload:
+        # New flow: full anketa for every child, persisted once
+        children = db.save_children(telegram_id, children_payload, mother_name=mother_name, father_name=father_name)
+        child = children[0] if children else None
+    else:
+        # Backward-compatible single-child flow
+        name = data.get("name")
+        age = int(data.get("age", 0))
+        favorite_hero = data.get("favorite_hero", "")
+        favorite_animal = data.get("favorite_animal", "")
+        favorite_toy = data.get("favorite_toy", "")
+        boy_friend = data.get("boy_friend", "")
+        girl_friend = data.get("girl_friend", "")
+        problems = data.get("problems", [])
+        child = db.save_child_profile(
+            telegram_id, name, age, favorite_hero, favorite_animal, favorite_toy, boy_friend, girl_friend, problems,
+            mother_name=mother_name, father_name=father_name
+        )
+        children = db.get_children(telegram_id)
+
     user = db.get_user(telegram_id)
-    
+
     return jsonify({
-        "success": True, 
+        "success": True,
         "child": child,
+        "children": children,
         "user": {
             "telegram_id": user["telegram_id"],
             "username": user["username"],

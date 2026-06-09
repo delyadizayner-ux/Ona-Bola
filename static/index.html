@@ -122,51 +122,30 @@
         <div id="profile-setup-screen" class="screen">
             <div class="profile-setup-container glass-panel">
                 <h2 class="form-title">Oilaviy Profil</h2>
-                <p class="form-subtitle">Farzandlaringiz uchun eng yaxshi tajribani yaratishimizga yordam bering.</p>
-                
+                <p class="form-subtitle">Anketani bir marta to'ldiring — ma'lumotlar saqlanadi va har bir ertakda ishlatiladi.</p>
+
                 <form id="profile-form" onsubmit="saveProfile(event)">
                     <div class="input-row">
                         <div class="input-group half">
-                            <label>Ona ismi:</label>
+                            <label>Ona ismi</label>
                             <input type="text" id="mother-name" placeholder="Masalan: Malika" required>
                         </div>
                         <div class="input-group half">
-                            <label>Ota ismi (ixtiyoriy):</label>
+                            <label>Ota ismi (ixtiyoriy)</label>
                             <input type="text" id="father-name" placeholder="Masalan: Jasur">
                         </div>
                     </div>
-                    
+
                     <div class="input-row">
                         <div class="input-group">
-                            <label>Farzandlar soni:</label>
-                            <input type="number" id="children-count" min="1" max="10" value="1" oninput="generateChildrenFields()" required>
-                        </div>
-                    </div>
-                    
-                    <div class="input-row no-stack">
-                        <div class="input-group half">
-                            <label>Nechta o'g'il?</label>
-                            <input type="number" id="boys-count" min="0" max="10" value="0">
-                        </div>
-                        <div class="input-group half">
-                            <label>Nechta qiz?</label>
-                            <input type="number" id="girls-count" min="0" max="10" value="1">
+                            <label>Farzandlar soni</label>
+                            <input type="number" id="children-count" min="1" max="6" value="1" oninput="generateChildrenFields()" required>
+                            <span class="field-hint">Har bir farzand uchun to'liq anketa pastda ochiladi.</span>
                         </div>
                     </div>
 
                     <div id="children-fields-container">
-                        <!-- Dynamically generated fields will go here -->
-                        <div class="child-field-group">
-                            <h4 class="child-field-title">1-Farzand</h4>
-                            <div class="input-row no-stack">
-                                <div class="input-group">
-                                    <input type="text" class="child-name-input" placeholder="Ismi" required>
-                                </div>
-                                <div class="input-group small">
-                                    <input type="number" class="child-age-input" placeholder="Yoshi" min="0" max="18" required>
-                                </div>
-                            </div>
-                        </div>
+                        <!-- Per-child anketa rendered by generateChildrenFields() -->
                     </div>
 
                     <button type="submit" class="btn-primary">Saqlash va Davom etish</button>
@@ -179,31 +158,22 @@
             <div class="profile-setup-container glass-panel">
                 <button type="button" class="btn-back-wizard" onclick="closeStoryWizard()">← Orqaga</button>
                 <h2 class="form-title">🪄 Ertak yaratish</h2>
-                <p class="form-subtitle">Ertakni shaxsiylashtirish uchun bir necha savolga javob bering.</p>
+                <p class="form-subtitle">Profildagi farzandlardan tanlang — anketa allaqachon saqlangan.</p>
 
                 <form id="story-wizard-form" onsubmit="submitStoryWizard(event)">
-                    <!-- Step 1: number of children -->
-                    <div class="input-row">
-                        <div class="input-group">
-                            <label>Ertakda nechta farzand ishtirok etadi?</label>
-                            <input type="number" id="wizard-children-count" min="1" max="6" value="1" oninput="renderStoryAnketa()" required>
-                        </div>
+                    <!-- Step 1: choose which saved children take part -->
+                    <div class="wizard-step-label">👨‍👩‍👧 Qaysi farzand(lar) ishtirok etadi?</div>
+                    <div id="wizard-children-select">
+                        <!-- saved children rendered by renderStorySelect() -->
                     </div>
 
                     <!-- Step 2: voice / dubbing mode -->
-                    <div class="input-group">
-                        <label>Ertakni kim ovozlashtiradi (dublaj)?</label>
-                        <div class="voice-mode-options" id="wizard-voice-mode">
-                            <label class="voice-mode-opt"><input type="radio" name="voice_mode" value="both" checked> 👩‍❤️‍👨 Ona va ota birgalikda</label>
-                            <label class="voice-mode-opt"><input type="radio" name="voice_mode" value="mother"> 👩 Faqat ona</label>
-                            <label class="voice-mode-opt"><input type="radio" name="voice_mode" value="father"> 👨 Faqat ota</label>
-                            <label class="voice-mode-opt"><input type="radio" name="voice_mode" value="none"> 🚫 Dublajsiz</label>
-                        </div>
-                    </div>
-
-                    <!-- Step 3: per-child anketa (rendered dynamically) -->
-                    <div id="wizard-anketa-container">
-                        <!-- generated by renderStoryAnketa() -->
+                    <div class="wizard-step-label">🎙️ Ertakni kim ovozlashtiradi?</div>
+                    <div class="voice-mode-options" id="wizard-voice-mode">
+                        <label class="voice-mode-opt"><input type="radio" name="voice_mode" value="both" checked> 👩‍❤️‍👨 Ona va ota birgalikda</label>
+                        <label class="voice-mode-opt"><input type="radio" name="voice_mode" value="mother"> 👩 Faqat ona</label>
+                        <label class="voice-mode-opt"><input type="radio" name="voice_mode" value="father"> 👨 Faqat ota</label>
+                        <label class="voice-mode-opt"><input type="radio" name="voice_mode" value="none"> 🚫 Dublajsiz</label>
                     </div>
 
                     <button type="submit" class="btn-primary btn-spark" id="btn-wizard-generate">

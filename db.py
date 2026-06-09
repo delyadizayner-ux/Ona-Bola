@@ -141,7 +141,17 @@ def init_db():
     if user_columns and "father_name" not in user_columns:
         cursor.execute("ALTER TABLE users ADD COLUMN father_name TEXT")
         conn.commit()
-        
+
+    # Check if best_friend / hobby columns exist in children table, if not add them
+    cursor.execute("PRAGMA table_info(children)")
+    child_columns = [col[1] for col in cursor.fetchall()]
+    if child_columns and "best_friend" not in child_columns:
+        cursor.execute("ALTER TABLE children ADD COLUMN best_friend TEXT")
+        conn.commit()
+    if child_columns and "hobby" not in child_columns:
+        cursor.execute("ALTER TABLE children ADD COLUMN hobby TEXT")
+        conn.commit()
+
     conn.close()
 
 def get_user(telegram_id):
@@ -290,6 +300,100 @@ def save_child_profile(telegram_id, name, age, favorite_hero, favorite_animal, f
     conn.commit()
     conn.close()
     return get_child_profile(telegram_id)
+
+
+def get_children(telegram_id):
+    """Return ALL children of a user (each with its bad-habit list), ordered by id."""
+    telegram_id = _clean_id(telegram_id)
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM children WHERE user_id = ? ORDER BY id ASC", (telegram_id,))
+    rows = cursor.fetchall()
+    children = []
+    for row in rows:
+        child = dict(row)
+        cursor.execute("SELECT problem_key FROM child_problems WHERE child_id = ?", (child["id"],))
+        child["problems"] = [r["problem_key"] for r in cursor.fetchall()]
+        children.append(child)
+    conn.close()
+    return children
+
+
+def _upsert_parent_names(cursor, telegram_id, mother_name, father_name):
+    """Update (or create) the user's mother/father names. Shared by save helpers."""
+    if not (mother_name or father_name):
+        return
+    cursor.execute("SELECT mother_name, father_name FROM users WHERE telegram_id = ?", (telegram_id,))
+    user_row = cursor.fetchone()
+    if not user_row:
+        full_name = " & ".join([n for n in (mother_name, father_name) if n]) or ""
+        cursor.execute("""
+        INSERT INTO users (telegram_id, username, full_name, mother_name, father_name, bonus_tokens)
+        VALUES (?, ?, ?, ?, ?, 3)
+        """, (telegram_id, f"user_{telegram_id}", full_name, mother_name, father_name))
+    else:
+        curr_m = mother_name or user_row["mother_name"]
+        curr_f = father_name or user_row["father_name"]
+        full_name = " & ".join([n for n in (curr_m, curr_f) if n]) or ""
+        cursor.execute("""
+        UPDATE users SET mother_name = ?, father_name = ?, full_name = ? WHERE telegram_id = ?
+        """, (curr_m, curr_f, full_name, telegram_id))
+
+
+def save_children(telegram_id, children, mother_name=None, father_name=None):
+    """
+    Persist the FULL anketa for every child (name, age, favorite_hero, favorite_toy,
+    best_friend, hobby + bad-habit list). Existing rows are reused positionally so that
+    saved stories keep their child_id; extra old children are removed.
+    """
+    telegram_id = _clean_id(telegram_id)
+    conn = get_db()
+    cursor = conn.cursor()
+
+    _upsert_parent_names(cursor, telegram_id, mother_name, father_name)
+
+    # Existing child rows for this user, in stable order
+    cursor.execute("SELECT id FROM children WHERE user_id = ? ORDER BY id ASC", (telegram_id,))
+    existing_ids = [r["id"] for r in cursor.fetchall()]
+
+    for i, c in enumerate(children or []):
+        name = (c.get("name") or "Farzand").strip() or "Farzand"
+        age = int(c.get("age") or 4)
+        favorite_hero = c.get("favorite_hero", "") or ""
+        favorite_toy = c.get("favorite_toy", "") or ""
+        favorite_animal = c.get("favorite_animal", "") or ""
+        best_friend = c.get("best_friend", "") or ""
+        hobby = c.get("hobby", "") or ""
+        problems = c.get("bad_habits") or c.get("problems") or []
+
+        if i < len(existing_ids):
+            child_id = existing_ids[i]
+            cursor.execute("""
+            UPDATE children
+            SET name = ?, age = ?, favorite_hero = ?, favorite_animal = ?, favorite_toy = ?,
+                best_friend = ?, hobby = ?
+            WHERE id = ?
+            """, (name, age, favorite_hero, favorite_animal, favorite_toy, best_friend, hobby, child_id))
+        else:
+            cursor.execute("""
+            INSERT INTO children (user_id, name, age, favorite_hero, favorite_animal, favorite_toy, best_friend, hobby)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """, (telegram_id, name, age, favorite_hero, favorite_animal, favorite_toy, best_friend, hobby))
+            child_id = cursor.lastrowid
+
+        cursor.execute("DELETE FROM child_problems WHERE child_id = ?", (child_id,))
+        for prob in problems:
+            cursor.execute("INSERT OR IGNORE INTO child_problems (child_id, problem_key) VALUES (?, ?)", (child_id, prob))
+
+    # Remove any leftover children beyond the submitted count
+    for leftover_id in existing_ids[len(children or []):]:
+        cursor.execute("DELETE FROM child_problems WHERE child_id = ?", (leftover_id,))
+        cursor.execute("DELETE FROM children WHERE id = ?", (leftover_id,))
+
+    conn.commit()
+    conn.close()
+    return get_children(telegram_id)
+
 
 def spend_token(telegram_id):
     telegram_id = _clean_id(telegram_id)

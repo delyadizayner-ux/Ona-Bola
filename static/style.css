@@ -2605,3 +2605,107 @@ body {
     color: #FFE08A;
     border: 1px solid rgba(255, 215, 0, 0.25);
 }
+
+/* ===== Profil anketasi + wizard farzand tanlash ===== */
+.field-hint {
+    display: block;
+    font-size: 12px;
+    color: var(--text-light);
+    margin-top: 6px;
+}
+.wizard-step-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-color);
+    margin: 20px 0 10px;
+}
+.wizard-step-label:first-of-type { margin-top: 6px; }
+
+/* Selectable saved-child cards in the story wizard */
+#wizard-children-select {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.select-child-card {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+    border-radius: 18px;
+    background: #fff;
+    border: 2px solid rgba(0, 0, 0, 0.07);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+    cursor: pointer;
+    transition: all 0.18s ease;
+}
+.select-child-card:has(input:checked) {
+    border-color: var(--primary);
+    background: linear-gradient(135deg, rgba(255, 142, 122, 0.08), rgba(123, 104, 238, 0.06));
+    box-shadow: 0 6px 20px rgba(255, 142, 122, 0.16);
+}
+.select-child-card .select-child {
+    width: 22px;
+    height: 22px;
+    margin-top: 2px;
+    accent-color: var(--primary);
+    flex-shrink: 0;
+    cursor: pointer;
+}
+.select-child-body { flex: 1; min-width: 0; }
+.select-child-head {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+.select-child-name { font-size: 16px; font-weight: 800; color: var(--text-color); }
+.select-child-age { font-size: 12px; font-weight: 600; color: var(--text-light); }
+.select-child-facts {
+    font-size: 12.5px;
+    color: var(--text-light);
+    line-height: 1.5;
+    margin-bottom: 8px;
+}
+.select-child-habits { display: flex; flex-wrap: wrap; gap: 6px; }
+.sel-habit-chip {
+    font-size: 11px;
+    font-weight: 600;
+    color: #C0392B;
+    background: rgba(255, 99, 71, 0.1);
+    border: 1px solid rgba(255, 99, 71, 0.2);
+    padding: 3px 9px;
+    border-radius: 20px;
+}
+.sel-habit-chip.muted {
+    color: var(--text-light);
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.06);
+}
+.select-check {
+    position: absolute;
+    top: 12px; right: 12px;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0.6);
+    transition: all 0.18s ease;
+}
+.select-child-card:has(input:checked) .select-check { opacity: 1; transform: scale(1); }
+
+.wizard-empty {
+    text-align: center;
+    padding: 28px 18px;
+    border-radius: 18px;
+    background: rgba(0, 0, 0, 0.03);
+    border: 1.5px dashed rgba(0, 0, 0, 0.12);
+}
+.wizard-empty p { color: var(--text-light); margin-bottom: 14px; font-size: 14px; }
