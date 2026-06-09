@@ -202,6 +202,11 @@ def api_login():
         
     if not telegram_id:
         return jsonify({"error": "Foydalanuvchi ma'lumotlari aniqlanmadi"}), 400
+
+    try:
+        telegram_id = int(telegram_id)
+    except (ValueError, TypeError):
+        return jsonify({"error": "Noto'g'ri foydalanuvchi IDsi"}), 400
         
     # Get or create user
     user = db.create_user(telegram_id, username, full_name, referred_by=referred_by)
@@ -230,6 +235,10 @@ def api_save_profile():
     telegram_id = data.get("telegram_id")
     if not telegram_id:
         return jsonify({"error": "Unauthorized"}), 401
+    try:
+        telegram_id = int(telegram_id)
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid user ID"}), 400
         
     name = data.get("name")
     age = int(data.get("age", 0))
@@ -281,38 +290,72 @@ def api_get_stories():
 def api_generate_story():
     data = request.json or {}
     telegram_id = data.get("telegram_id")
+
+    # New flow: a list of children (anketa) + a dubbing/voice mode.
+    children = data.get("children")
+    voice_mode = data.get("voice_mode", "none")
+
+    # Old flow (backward compatible): a single problem_key against the saved profile.
     problem_key = data.get("problem_key")
-    
-    if not telegram_id or not problem_key:
+
+    if not telegram_id:
         return jsonify({"error": "Parametrlar yetarli emas"}), 400
-        
-    child = db.get_child_profile(telegram_id)
-    if not child:
-        return jsonify({"error": "Bola profili topilmadi"}), 404
-        
-    # Spend token
+
+    # Build the list of children to feature in the story
+    if children:
+        kids = children
+    else:
+        child = db.get_child_profile(telegram_id)
+        if not child:
+            return jsonify({"error": "Bola profili topilmadi"}), 404
+        if problem_key:
+            child = dict(child)
+            child["bad_habits"] = [problem_key]
+        kids = [child]
+
+    if not kids:
+        return jsonify({"error": "Kamida bitta farzand kerak"}), 400
+
+    # Spend token (one combined story = one token)
     if not db.spend_token(telegram_id):
         return jsonify({
             "error": "Sizda ertak yaratish uchun tokenlar tugadi. Premium obuna bo'ling yoki referral havola orqali do'stlarni taklif qiling!"
         }), 403
-        
-    # Attempt to generate via OpenAI
-    story_data = story_generator.generate_story_openai(child, problem_key)
-    
-    # Fallback to local template if OpenAI is not configured or fails
+
+    # Attempt to generate via OpenAI, fall back to offline templates
+    story_data = story_generator.generate_family_story_openai(kids, voice_mode)
     if not story_data:
-        story_data = story_generator.generate_personalized_story_offline(child, problem_key)
-        
-    story_id = db.save_story(
-        child["id"],
-        story_data["title"],
-        story_data["story"],
-        story_data["moral"],
-        story_data["task"],
-        problem_key=problem_key
-    )
+        story_data = story_generator.generate_family_story_offline(kids, voice_mode)
+
+    # The combined story is attached to the user's primary child profile (for the library)
+    profile = db.get_child_profile(telegram_id)
+    child_db_id = profile["id"] if profile else None
+
+    # Determine a representative problem_key (first bad habit found) for illustrations/back-compat
+    first_habit = problem_key
+    if not first_habit:
+        for k in kids:
+            habits = k.get("bad_habits") or k.get("problems") or []
+            if habits:
+                first_habit = habits[0]
+                break
+
+    segments = story_data.get("segments", [])
+    story_id = None
+    if child_db_id:
+        story_id = db.save_story(
+            child_db_id,
+            story_data["title"],
+            story_data["story"],
+            story_data["moral"],
+            story_data["task"],
+            problem_key=first_habit,
+            segments_json=json.dumps(segments, ensure_ascii=False),
+            voice_mode=voice_mode,
+        )
+
     user = db.get_user(telegram_id)
-    
+
     return jsonify({
         "success": True,
         "story": {
@@ -321,7 +364,9 @@ def api_generate_story():
             "content_text": story_data["story"],
             "moral_lesson": story_data["moral"],
             "daily_task": story_data["task"],
-            "problem_key": problem_key
+            "problem_key": first_habit,
+            "segments": segments,
+            "voice_mode": voice_mode,
         },
         "user": {
             "bonus_tokens": user["bonus_tokens"],

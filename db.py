@@ -23,6 +23,14 @@ def get_db():
     conn.row_factory = sqlite3.Row
     return conn
 
+def _clean_id(telegram_id):
+    if telegram_id is None:
+        return None
+    try:
+        return int(telegram_id)
+    except (ValueError, TypeError):
+        return None
+
 def init_db():
     conn = get_db()
     cursor = conn.cursor()
@@ -117,6 +125,12 @@ def init_db():
     if columns and "problem_key" not in columns:
         cursor.execute("ALTER TABLE stories ADD COLUMN problem_key TEXT")
         conn.commit()
+    if columns and "segments_json" not in columns:
+        cursor.execute("ALTER TABLE stories ADD COLUMN segments_json TEXT")
+        conn.commit()
+    if columns and "voice_mode" not in columns:
+        cursor.execute("ALTER TABLE stories ADD COLUMN voice_mode TEXT DEFAULT 'none'")
+        conn.commit()
         
     # Check if mother_name and father_name columns exist in users table, if not add them
     cursor.execute("PRAGMA table_info(users)")
@@ -131,6 +145,7 @@ def init_db():
     conn.close()
 
 def get_user(telegram_id):
+    telegram_id = _clean_id(telegram_id)
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM users WHERE telegram_id = ?", (telegram_id,))
@@ -139,6 +154,7 @@ def get_user(telegram_id):
     return dict(row) if row else None
 
 def create_user(telegram_id, username, full_name, referred_by=None):
+    telegram_id = _clean_id(telegram_id)
     conn = get_db()
     cursor = conn.cursor()
     
@@ -182,6 +198,7 @@ def create_user(telegram_id, username, full_name, referred_by=None):
     return get_user(telegram_id)
 
 def get_child_profile(telegram_id):
+    telegram_id = _clean_id(telegram_id)
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM children WHERE user_id = ?", (telegram_id,))
@@ -198,6 +215,7 @@ def get_child_profile(telegram_id):
     return child
 
 def save_child_profile(telegram_id, name, age, favorite_hero, favorite_animal, favorite_toy, boy_friend_name, girl_friend_name, problems, mother_name=None, father_name=None):
+    telegram_id = _clean_id(telegram_id)
     conn = get_db()
     cursor = conn.cursor()
     
@@ -274,6 +292,7 @@ def save_child_profile(telegram_id, name, age, favorite_hero, favorite_animal, f
     return get_child_profile(telegram_id)
 
 def spend_token(telegram_id):
+    telegram_id = _clean_id(telegram_id)
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute("SELECT bonus_tokens, subscription_status FROM users WHERE telegram_id = ?", (telegram_id,))
@@ -295,13 +314,13 @@ def spend_token(telegram_id):
     conn.close()
     return False
 
-def save_story(child_id, title, content_text, moral_lesson, daily_task, problem_key=None, audio_url=None):
+def save_story(child_id, title, content_text, moral_lesson, daily_task, problem_key=None, audio_url=None, segments_json=None, voice_mode="none"):
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute("""
-    INSERT INTO stories (child_id, title, content_text, moral_lesson, daily_task, problem_key, audio_url)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-    """, (child_id, title, content_text, moral_lesson, daily_task, problem_key, audio_url))
+    INSERT INTO stories (child_id, title, content_text, moral_lesson, daily_task, problem_key, audio_url, segments_json, voice_mode)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (child_id, title, content_text, moral_lesson, daily_task, problem_key, audio_url, segments_json, voice_mode))
     story_id = cursor.lastrowid
     conn.commit()
     conn.close()
@@ -369,6 +388,7 @@ def toggle_task(task_id, is_completed):
     return True
 
 def get_referral_info(telegram_id):
+    telegram_id = _clean_id(telegram_id)
     conn = get_db()
     cursor = conn.cursor()
     # Count how many users signed up using this user's telegram_id as referred_by
@@ -381,6 +401,7 @@ def get_referral_info(telegram_id):
     }
 
 def update_subscription(telegram_id, plan_type):
+    telegram_id = _clean_id(telegram_id)
     # plan_type could be 'weekly', 'monthly', 'free'
     conn = get_db()
     cursor = conn.cursor()
@@ -401,6 +422,7 @@ def update_subscription(telegram_id, plan_type):
     return get_user(telegram_id)
 
 def save_voice_sample(telegram_id, role, file_path):
+    telegram_id = _clean_id(telegram_id)
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute("""
@@ -412,6 +434,7 @@ def save_voice_sample(telegram_id, role, file_path):
     return True
 
 def get_voice_samples_count(telegram_id):
+    telegram_id = _clean_id(telegram_id)
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute("""
@@ -426,6 +449,7 @@ def get_voice_samples_count(telegram_id):
     return result
 
 def delete_voice_samples(telegram_id):
+    telegram_id = _clean_id(telegram_id)
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute("DELETE FROM voice_samples WHERE telegram_id = ?", (telegram_id,))

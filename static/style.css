@@ -288,15 +288,15 @@ body {
 
 /* Glass Panel */
 .glass-panel {
-    background: rgba(15, 8, 32, 0.7); /* dark purple glass */
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 28px;
-    padding: 32px 24px;
+    background: rgba(22, 14, 42, 0.65); /* soft deep purple premium glass */
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    border: 1.5px solid rgba(255, 255, 255, 0.12);
+    border-radius: 32px;
+    padding: 36px 28px;
     width: 100%;
     max-width: 400px;
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.1);
     margin: auto;
 }
 
@@ -304,7 +304,7 @@ body {
 #login-screen, #profile-setup-screen {
     justify-content: center;
     align-items: center;
-    background: linear-gradient(135deg, #0D0221 0%, #1A0B3E 50%, #2D1B69 100%);
+    background: linear-gradient(135deg, #0D0221 0%, #1A0B3E 50%, #2B1857 100%);
 }
 
 .login-icon-wrapper {
@@ -328,20 +328,21 @@ body {
 .form-title {
     font-size: 28px;
     font-weight: 800;
-    background: linear-gradient(90deg, #FFD700 0%, #FF8E7A 100%);
+    background: linear-gradient(135deg, #FFE299 0%, #FF9F7A 50%, #FF758F 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     text-align: center;
     letter-spacing: -0.5px;
+    text-shadow: 0 0 30px rgba(255, 165, 133, 0.1);
 }
 
 .form-subtitle {
-    font-size: 15px;
-    color: rgba(255, 255, 255, 0.75);
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
     line-height: 1.5;
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 28px;
 }
 
 .btn-telegram-login {
@@ -377,7 +378,7 @@ body {
 .input-group {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     width: 100%;
     text-align: left;
 }
@@ -413,55 +414,58 @@ body {
 .input-group label {
     font-size: 13px;
     font-weight: 700;
-    color: #E5D5FF; /* premium soft lavender */
-    letter-spacing: 0.3px;
+    color: #FFE6A3; /* premium high-contrast warm soft gold */
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
 }
 
 .input-group input {
     width: 100%; /* Fix mobile overflow clipping */
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    padding: 14px 16px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1.5px solid rgba(255, 255, 255, 0.1);
+    padding: 15px 18px;
     border-radius: 16px;
     font-size: 15px;
     color: white;
-    transition: all 0.2s ease;
+    font-weight: 500;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     font-family: inherit;
 }
 
 .input-group input::placeholder {
-    color: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.45);
 }
 
 .input-group input:focus {
     outline: none;
-    border-color: #FF8E7A; /* coral focus */
-    box-shadow: 0 0 12px rgba(255, 142, 122, 0.3);
-    background: rgba(255, 255, 255, 0.1);
+    border-color: #FFA585; /* coral focus */
+    box-shadow: 0 0 15px rgba(255, 165, 133, 0.25);
+    background: rgba(255, 255, 255, 0.08);
 }
 
 .child-field-group {
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(255, 255, 255, 0.02);
     border-radius: 20px;
-    padding: 18px 16px;
-    margin-top: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    padding: 20px 18px;
+    margin-top: 14px;
+    border: 1.5px solid rgba(255, 255, 255, 0.06);
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.2), 0 10px 25px rgba(0,0,0,0.15);
 }
 
 .child-field-title {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 800;
-    color: #A1E3D4; /* beautiful soft mint green accent */
+    color: #A3FFEB; /* premium high-contrast soft mint green accent */
     margin-top: 0;
     margin-bottom: 12px;
     text-align: left;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #FF8E7A 0%, #7B68EE 100%);
+    background: linear-gradient(135deg, #FF8E7A 0%, #8A2BE2 50%, #4B0082 100%);
     color: white;
     border: none;
     padding: 18px;
@@ -469,7 +473,7 @@ body {
     font-size: 16px;
     font-weight: 800;
     cursor: pointer;
-    box-shadow: 0 8px 25px rgba(255, 142, 122, 0.3);
+    box-shadow: 0 10px 30px rgba(138, 43, 226, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2);
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     margin-top: 10px;
     width: 100%;
@@ -477,7 +481,7 @@ body {
 
 .btn-primary:active {
     transform: translateY(2px) scale(0.98);
-    box-shadow: 0 4px 15px rgba(255, 142, 122, 0.2);
+    box-shadow: 0 5px 15px rgba(138, 43, 226, 0.2);
 }
 
 /* Buttons */
@@ -2373,4 +2377,79 @@ body {
     font-size: 13px;
     color: rgba(255,255,255,0.5);
     margin-bottom: 20px;
+}
+
+/* ===== Story Wizard (ertak yaratish anketasi) ===== */
+.voice-mode-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 6px;
+}
+.voice-mode-opt {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border: 1.5px solid rgba(0, 0, 0, 0.08);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.voice-mode-opt:has(input:checked) {
+    border-color: #FF7A59;
+    background: rgba(255, 122, 89, 0.10);
+    font-weight: 600;
+}
+
+.wizard-child-card {
+    margin-top: 18px;
+    padding: 16px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.55);
+    border: 1.5px solid rgba(255, 122, 89, 0.18);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+.wizard-child-title {
+    margin: 0 0 12px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #FF6B3D;
+}
+.wizard-hint {
+    margin: 2px 0 8px;
+    font-size: 12px;
+    color: #8a8a8a;
+}
+.wizard-habits {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-top: 4px;
+}
+.wizard-habit-opt {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1.5px solid rgba(0, 0, 0, 0.07);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.wizard-habit-opt:has(input:checked) {
+    border-color: #34C759;
+    background: rgba(52, 199, 89, 0.10);
+    font-weight: 600;
+}
+.wizard-habit-opt input,
+.voice-mode-opt input {
+    width: 18px;
+    height: 18px;
+    accent-color: #FF7A59;
+    flex-shrink: 0;
 }

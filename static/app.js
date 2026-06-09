@@ -45,6 +45,14 @@ document.addEventListener("DOMContentLoaded", () => {
         referredBy = tg.initDataUnsafe.start_param;
     }
 
+    // Fallback: extract telegramId from start param if not set otherwise
+    if (!telegramId && referredBy && referredBy.startsWith("ref_")) {
+        const extractedId = parseInt(referredBy.replace("ref_", ""));
+        if (!isNaN(extractedId)) {
+            telegramId = extractedId;
+        }
+    }
+
     // For final fallback in pure local browser
     if (!telegramId) {
         telegramId = 999999; // Mock ID
@@ -206,33 +214,8 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("dash-child-name").innerText = `${currentChild.name} Profili`;
             document.getElementById("dash-child-age").innerText = `${currentChild.age} yosh`;
             document.getElementById("profile-child-name").innerText = currentChild.name;
-            
-            // Populate Problem selector in story generator
-            const selectEl = document.getElementById("story-problem-key");
-            selectEl.innerHTML = "";
-            
-            const problemNames = {
-                "screentime": "📱 Telefonni ko'p ko'rish",
-                "teeth_brush": "🪥 Tish yuvmaslik",
-                "food": "🍔 Fast-food / Shirinliklar",
-                "bedtime": "🌙 Kech uxlash",
-                "behavior": "😠 Ujarlik / Odob-ahloq"
-            };
-
-            if (currentChild.problems && currentChild.problems.length > 0) {
-                currentChild.problems.forEach(p => {
-                    const opt = document.createElement("option");
-                    opt.value = p;
-                    opt.innerText = problemNames[p] || p;
-                    selectEl.appendChild(opt);
-                });
-            } else {
-                // If child profile has no problems checked, show behavior by default
-                const opt = document.createElement("option");
-                opt.value = "behavior";
-                opt.innerText = problemNames["behavior"];
-                selectEl.appendChild(opt);
-            }
+            // Note: bad-habit/problem selection now lives inside the story wizard
+            // (renderStoryAnketa), so no standalone problem selector is populated here.
         }
     }
 
@@ -518,18 +501,139 @@ document.addEventListener("DOMContentLoaded", () => {
         showAlert("Havola buferga nusxalandi! Do'stlaringizga yuborishingiz mumkin.");
     });
 
-    // 5. Generate Story Logic
-    document.getElementById("btn-generate-story").addEventListener("click", async () => {
+    // 5. Story Wizard Logic (select children -> anketa -> bad habits -> generate)
+
+    // Bad-habit catalog (keys must match story_generator.HABIT_INFO on the backend)
+    const WIZARD_HABITS = [
+        { key: "screentime",   label: "📱 Ko'p telefon/planshet ko'rish" },
+        { key: "tantrum",      label: "🛒 Do'konda janjal/harhasha qilish" },
+        { key: "kindergarten", label: "🏫 Bog'chaga borishni xohlamaslik" },
+        { key: "homework",     label: "📚 Dars/mashq qilishni xohlamaslik" },
+        { key: "moody",        label: "😠 Injiq, qaysar bo'lib qolish" },
+        { key: "teeth_brush",  label: "🪥 Tish yuvishni yoqtirmaslik" },
+        { key: "food",         label: "🍎 Foydali taomni rad etish" },
+        { key: "bedtime",      label: "🌙 Vaqtida uxlamaslik" },
+        { key: "behavior",     label: "🙉 Ota-ona so'ziga quloq solmaslik" },
+    ];
+
+    // Escape a value so it is safe inside a double-quoted HTML attribute
+    function escAttr(s) {
+        return String(s == null ? "" : s).replace(/"/g, "&quot;");
+    }
+
+    // Render one anketa card per child, pre-filling the first one from the saved profile
+    window.renderStoryAnketa = function() {
+        const container = document.getElementById("wizard-anketa-container");
+        if (!container) return;
+        const countInput = document.getElementById("wizard-children-count");
+        let count = parseInt(countInput && countInput.value) || 1;
+        if (count < 1) count = 1;
+        if (count > 6) count = 6;
+
+        let html = "";
+        for (let i = 0; i < count; i++) {
+            const pre = (i === 0 && currentChild) ? currentChild : {};
+            const friend = pre.best_friend || pre.boy_friend_name || pre.girl_friend_name || "";
+            const problems = pre.problems || [];
+
+            const habitsHtml = WIZARD_HABITS.map(h => `
+                <label class="wizard-habit-opt">
+                    <input type="checkbox" class="wizard-habit" data-child="${i}" value="${h.key}" ${problems.includes(h.key) ? "checked" : ""}>
+                    <span>${h.label}</span>
+                </label>`).join("");
+
+            html += `
+            <div class="wizard-child-card" data-child="${i}">
+                <h3 class="wizard-child-title">👶 ${i + 1}-farzand</h3>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Ismi</label>
+                        <input type="text" class="wizard-field" data-child="${i}" data-field="name" value="${escAttr(pre.name)}" placeholder="Masalan: Diyor" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Yoshi</label>
+                        <input type="number" class="wizard-field" data-child="${i}" data-field="age" min="1" max="18" value="${escAttr(pre.age || 4)}" required>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Sevimli qahramoni</label>
+                    <input type="text" class="wizard-field" data-child="${i}" data-field="favorite_hero" value="${escAttr(pre.favorite_hero)}" placeholder="Masalan: Botir, Elza...">
+                </div>
+                <div class="input-group">
+                    <label>Sevimli o'yinchog'i</label>
+                    <input type="text" class="wizard-field" data-child="${i}" data-field="favorite_toy" value="${escAttr(pre.favorite_toy)}" placeholder="Masalan: ayiqcha, mashina...">
+                </div>
+                <div class="input-group">
+                    <label>Eng yaqin o'rtog'i</label>
+                    <input type="text" class="wizard-field" data-child="${i}" data-field="best_friend" value="${escAttr(friend)}" placeholder="Do'stining ismi">
+                </div>
+                <div class="input-group">
+                    <label>Yoqtirgan mashg'uloti</label>
+                    <input type="text" class="wizard-field" data-child="${i}" data-field="hobby" value="${escAttr(pre.hobby)}" placeholder="Masalan: rasm chizish, futbol...">
+                </div>
+                <div class="input-group">
+                    <label>Yengishi kerak bo'lgan salbiy odat(lar)i</label>
+                    <p class="wizard-hint">Belgilangan odatlar ertakda yumshoq, ibratli tarzda tuzatiladi.</p>
+                    <div class="wizard-habits">${habitsHtml}</div>
+                </div>
+            </div>`;
+        }
+        container.innerHTML = html;
+    };
+
+    // Back button on the wizard
+    window.closeStoryWizard = function() {
         triggerHaptic();
-        const problemKey = document.getElementById("story-problem-key").value;
-        if (!problemKey) {
-            showAlert("Iltimos, avval ertak mavzusini tanlang!");
+        showScreen("dashboard-screen");
+    };
+
+    // Open the wizard from the dashboard
+    const openWizardBtn = document.getElementById("btn-open-story-wizard");
+    if (openWizardBtn) {
+        openWizardBtn.addEventListener("click", () => {
+            triggerHaptic();
+            const countInput = document.getElementById("wizard-children-count");
+            if (countInput) countInput.value = 1;
+            renderStoryAnketa();
+            showScreen("story-wizard-screen");
+        });
+    }
+
+    // Submit the wizard: collect children + voice mode, generate the story
+    window.submitStoryWizard = async function(event) {
+        if (event) event.preventDefault();
+        triggerHaptic();
+
+        const voiceModeEl = document.querySelector('#wizard-voice-mode input[name="voice_mode"]:checked');
+        const voiceMode = voiceModeEl ? voiceModeEl.value : "none";
+
+        const children = [];
+        document.querySelectorAll(".wizard-child-card").forEach(card => {
+            const getVal = (field) => {
+                const el = card.querySelector(`.wizard-field[data-field="${field}"]`);
+                return el ? el.value.trim() : "";
+            };
+            const name = getVal("name");
+            if (!name) return; // skip empty children
+            const habits = Array.from(card.querySelectorAll(".wizard-habit:checked")).map(c => c.value);
+            children.push({
+                name,
+                age: parseInt(getVal("age")) || 4,
+                favorite_hero: getVal("favorite_hero"),
+                favorite_toy: getVal("favorite_toy"),
+                best_friend: getVal("best_friend"),
+                hobby: getVal("hobby"),
+                bad_habits: habits,
+            });
+        });
+
+        if (children.length === 0) {
+            showAlert("Iltimos, kamida bitta farzandning ismini kiriting!");
             return;
         }
 
-        const genBtn = document.getElementById("btn-generate-story");
+        const genBtn = document.getElementById("btn-wizard-generate");
         const originalText = genBtn.innerHTML;
-        
         genBtn.disabled = true;
         genBtn.innerHTML = `<span class="spinner" style="width:16px;height:16px;margin:0 6px 0 0;display:inline-block;vertical-align:middle;border-width:2px;"></span> Sehrlanmoqda...`;
 
@@ -539,17 +643,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     telegram_id: telegramId,
-                    problem_key: problemKey
+                    children: children,
+                    voice_mode: voiceMode
                 })
             });
             const data = await response.json();
             if (response.status === 200 && data.success) {
-                // Update User details
                 currentUser.bonus_tokens = data.user.bonus_tokens;
                 currentUser.subscription_status = data.user.subscription_status;
                 updateUI();
-
-                // Open the new story
                 openStoryViewer(data.story);
             } else {
                 showAlert(data.error || "Ertak yaratishda muammo yuz berdi.");
@@ -561,7 +663,7 @@ document.addEventListener("DOMContentLoaded", () => {
             genBtn.disabled = false;
             genBtn.innerHTML = originalText;
         }
-    });
+    };
 
     // Duet Voice Recording States, 3D Book & Web Audio FX Variables
     let audioBlobs = { 1: null, 2: null, 3: null };
@@ -1729,44 +1831,46 @@ document.addEventListener("DOMContentLoaded", () => {
                     const localProfileStr = localStorage.getItem("onabola_profile");
                     const hasLocalProfile = !!localProfileStr;
 
-                    // If profile is already set up in the database, or we have a local copy to restore
-                    if (currentUser.mother_name || currentUser.father_name || currentChild || hasLocalProfile) {
-                        
-                        // If the database profile was reset but we have local profile, restore it silently
-                        if (!(currentUser.mother_name || currentUser.father_name || currentChild) && hasLocalProfile) {
-                            try {
-                                const localProfile = JSON.parse(localProfileStr);
-                                const restoreRes = await fetch("/api/save_profile", {
-                                    method: "POST",
-                                    headers: { "Content-Type": "application/json" },
-                                    body: JSON.stringify({
-                                        telegram_id: telegramId,
-                                        name: localProfile.child_name || "Farzandim",
-                                        age: parseInt(localProfile.child_age) || 4,
-                                        mother_name: localProfile.mother_name || "",
-                                        father_name: localProfile.father_name || "",
-                                        problems: localProfile.problems || ['behavior']
-                                    })
-                                });
-                                const restoreData = await restoreRes.json();
-                                if (restoreData.success) {
-                                    currentUser = restoreData.user;
-                                    currentChild = restoreData.child;
-                                    updateUI();
-                                }
-                            } catch (err) {
-                                console.error("Failed to restore profile from local storage:", err);
-                            }
-                        }
+                    // Has the user already finished registration (parent names or a child profile)?
+                    let profileComplete = !!(currentUser.mother_name || currentUser.father_name || currentChild);
 
-                        const loggedInBefore = localStorage.getItem("onabola_logged_in") === "true";
-                        // Auto-login real Telegram users, or browser testers who checked in before
-                        if (telegramId !== 999999 || loggedInBefore || hasLocalProfile) {
-                            localStorage.setItem("onabola_logged_in", "true");
-                            showScreen("dashboard-screen");
-                            loadDashboardData();
-                            return;
+                    // If the database profile was reset (e.g. Vercel /tmp) but we kept a local
+                    // backup, restore it silently so the user is treated as already-registered.
+                    if (!profileComplete && hasLocalProfile) {
+                        try {
+                            const localProfile = JSON.parse(localProfileStr);
+                            const restoreRes = await fetch("/api/save_profile", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({
+                                    telegram_id: telegramId,
+                                    name: localProfile.child_name || "Farzandim",
+                                    age: parseInt(localProfile.child_age) || 4,
+                                    mother_name: localProfile.mother_name || "",
+                                    father_name: localProfile.father_name || "",
+                                    problems: localProfile.problems || ['behavior']
+                                })
+                            });
+                            const restoreData = await restoreRes.json();
+                            if (restoreData.success) {
+                                currentUser = restoreData.user;
+                                currentChild = restoreData.child;
+                                updateUI();
+                                profileComplete = true;
+                            }
+                        } catch (err) {
+                            console.error("Failed to restore profile from local storage:", err);
                         }
+                    }
+
+                    // Returning user who already registered + filled the profile:
+                    // skip the onboarding/login screens and go straight to the dashboard.
+                    // The login/onboarding is shown ONLY to brand-new users (no profile yet).
+                    if (profileComplete) {
+                        localStorage.setItem("onabola_logged_in", "true");
+                        showScreen("dashboard-screen");
+                        loadDashboardData();
+                        return;
                     }
                 }
             } catch (e) {
