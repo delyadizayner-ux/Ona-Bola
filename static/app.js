@@ -198,12 +198,19 @@ document.addEventListener("DOMContentLoaded", () => {
         
         // Premium status banner
         const premiumBanner = document.getElementById("premium-status-banner");
-        if (currentUser.subscription_status !== "free") {
+        const isPremium = currentUser.subscription_status !== "free";
+        if (isPremium) {
             premiumBanner.style.display = "block";
             document.getElementById("dash-tokens").innerText = "∞";
         } else {
             premiumBanner.style.display = "none";
         }
+
+        // Quick stats strip (home tab)
+        const statTokens = document.getElementById("stat-tokens");
+        if (statTokens) statTokens.innerText = isPremium ? "∞" : currentUser.bonus_tokens;
+        const statPlan = document.getElementById("stat-plan");
+        if (statPlan) statPlan.innerText = isPremium ? "Premium" : "Free";
 
         // Referral links
         const botUsername = "OnaBola_bot"; // Change this if bot name differs
@@ -211,9 +218,11 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("ref-link-input").value = refLink;
 
         if (currentChild) {
-            document.getElementById("dash-child-name").innerText = `${currentChild.name} Profili`;
+            document.getElementById("dash-child-name").innerText = currentChild.name;
             document.getElementById("dash-child-age").innerText = `${currentChild.age} yosh`;
             document.getElementById("profile-child-name").innerText = currentChild.name;
+            const statAge = document.getElementById("stat-age");
+            if (statAge) statAge.innerText = currentChild.age;
             // Note: bad-habit/problem selection now lives inside the story wizard
             // (renderStoryAnketa), so no standalone problem selector is populated here.
         }

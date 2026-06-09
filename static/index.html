@@ -245,15 +245,17 @@
             
             <div class="dashboard-header">
                 <div class="user-info">
-                    <div class="avatar">👶</div>
-                    <div>
-                        <h3 id="dash-child-name">Asadbek Profili</h3>
+                    <div class="avatar"><span>👶</span></div>
+                    <div class="user-meta">
+                        <p class="greeting">Xush kelibsiz 👋</p>
+                        <h3 id="dash-child-name">Asadbek</h3>
                         <p id="dash-child-age">4 yosh</p>
                     </div>
                 </div>
                 <div class="tokens-badge">
                     <span class="icon">✨</span>
-                    <span id="dash-tokens">3</span> ta ertak
+                    <span id="dash-tokens">3</span>
+                    <span class="token-label">ertak</span>
                 </div>
             </div>
 
@@ -290,20 +292,35 @@
                         👑 <b>Premium faol!</b> Cheksiz AI ertaklar va maxsus audio ovozlar.
                     </div>
 
-                    <!-- AI Story Generator Section -->
-                    <div class="card generator-card">
-                        <div class="card-hero-decorator-wrapper">
-                            <img src="img/hero1.png" class="card-hero-decorator" alt="Hero">
+                    <!-- Quick stats strip -->
+                    <div class="stats-strip">
+                        <div class="stat-chip">
+                            <span class="stat-ic">✨</span>
+                            <span class="stat-val" id="stat-tokens">3</span>
+                            <span class="stat-lbl">Ertak krediti</span>
                         </div>
-                        <div class="card-header">
-                            <h2>✨ Sehrli AI Ertakchi</h2>
-                            <p>Farzandlaringiz uchun shaxsiylashtirilgan tarbiyaviy ertak yarating. AI ularning sevimlilari va odatlaridan kelib chiqib ertak to'qiydi.</p>
+                        <div class="stat-chip">
+                            <span class="stat-ic">🎂</span>
+                            <span class="stat-val" id="stat-age">4</span>
+                            <span class="stat-lbl">Yosh</span>
                         </div>
-                        <div class="problem-selector">
-                            <button class="btn btn-primary btn-spark" id="btn-open-story-wizard">
-                                <span class="spark-icon">🪄</span> Ertak yaratish
-                            </button>
+                        <div class="stat-chip">
+                            <span class="stat-ic">👑</span>
+                            <span class="stat-val" id="stat-plan">Free</span>
+                            <span class="stat-lbl">Tarif</span>
                         </div>
+                    </div>
+
+                    <!-- AI Story Generator — primary hero CTA -->
+                    <div class="hero-card">
+                        <div class="hero-card-glow"></div>
+                        <img src="img/hero1.png" class="hero-card-art" alt="" onerror="this.style.display='none'">
+                        <span class="hero-badge">AI ✨</span>
+                        <h2 class="hero-title">Sehrli AI Ertakchi</h2>
+                        <p class="hero-desc">Farzandingizning sevimli qahramoni, o'yinchog'i va odatlaridan kelib chiqib, shaxsiy tarbiyaviy ertak yarating.</p>
+                        <button class="btn btn-primary btn-spark hero-cta" id="btn-open-story-wizard">
+                            <span class="spark-icon">🪄</span> Yangi ertak yaratish
+                        </button>
                     </div>
 
                     <!-- Today's Tasks Summary -->
