@@ -1,6 +1,11 @@
 import os
 import json
+import time
 import openai
+
+# Substrings that mark a transient provider error worth retrying
+_TRANSIENT_MARKERS = ("503", "429", "500", "502", "504", "UNAVAILABLE",
+                      "overloaded", "high demand", "rate limit", "ratelimit", "timeout")
 
 # ---------------------------------------------------------------------------
 # Bad-habit knowledge base
@@ -53,6 +58,36 @@ HABIT_INFO = {
         "why": "ota-onaning maslahati doim bolaning foydasi uchun aytiladi",
         "task": "Bugun ota-onaning bir iltimosini darrov, xursandchilik bilan bajarish",
     },
+    "lying": {
+        "label": "yolg'on gapirish",
+        "why": "rostgo'ylik ishonch va hurmat keltiradi, yolg'on esa do'stlikni buzadi",
+        "task": "Bugun faqat rost gapirish — xato qilsa ham rostini aytishdan qo'rqmaslik",
+    },
+    "laziness": {
+        "label": "dangasalik, ishyoqmaslik",
+        "why": "harakat va mehnat orzularni ushaydi, dangasalik imkoniyatlarni qo'ldan boy beradi",
+        "task": "Bugun bitta foydali ishni boshlab, oxirigacha o'zi bajarish",
+    },
+    "aggression": {
+        "label": "jahldorlik, urishish",
+        "why": "muloyimlik va sabr do'st orttiradi, urishish atrofdagilarni xafa qiladi",
+        "task": "Bugun jahli chiqsa, chuqur nafas olib, muloyim so'z bilan gapirish",
+    },
+    "messiness": {
+        "label": "tartibsizlik, narsalarni yig'ishtirmaslik",
+        "why": "tartib bola hayotini yengillashtiradi va o'ziga ishonch beradi",
+        "task": "Bugun o'yinchoq va kitoblarni o'z joy-joyiga qo'yish",
+    },
+    "game_addiction": {
+        "label": "o'yinlarga haddan ziyod berilish",
+        "why": "jonli do'stlar, sport va ijod hayotni o'yindan ko'ra boyitadi",
+        "task": "Bugun ekran o'yinini cheklab, jonli o'yin yoki ijod bilan shug'ullanish",
+    },
+    "disrespect": {
+        "label": "kattalarga hurmatsizlik",
+        "why": "hurmat ko'rsatgan inson o'zi ham hurmatga sazovor bo'ladi",
+        "task": "Bugun kattalar bilan muloyim va hurmat bilan gaplashish",
+    },
 }
 
 
@@ -65,8 +100,12 @@ def _normalize_children(children):
         normalized.append({
             "name": (c.get("name") or "Kichkintoy").strip() or "Kichkintoy",
             "age": c.get("age") or 4,
+            "gender": c.get("gender") or "",
             "favorite_hero": c.get("favorite_hero") or "Jasur Botir",
             "favorite_toy": c.get("favorite_toy") or "sehrli o'yinchoq",
+            "favorite_animal": c.get("favorite_animal") or "",
+            "favorite_cartoon": c.get("favorite_cartoon") or "",
+            "favorite_color": c.get("favorite_color") or "",
             "best_friend": c.get("best_friend") or c.get("boy_friend_name") or c.get("girl_friend_name") or "yaqin do'sti",
             "hobby": c.get("hobby") or "o'ynash",
             "bad_habits": [h for h in (c.get("bad_habits") or c.get("problems") or []) if h],
@@ -86,55 +125,121 @@ def _reader_plan(voice_mode):
 
 
 # ---------------------------------------------------------------------------
-# AI prompt building (shared by every OpenAI-compatible provider)
+# "Story Master" — professional child-behaviour story engine
 # ---------------------------------------------------------------------------
+STORY_MASTER_SYSTEM = (
+    "Sen 'Story Master'san — bolalar psixologiyasi, axloqiy tarbiya, xulq-atvorni "
+    "to'g'rilash va emotsional ta'lim bo'yicha jahon darajasidagi o'zbek bolalar "
+    "ertakchisisan. Sening ertaklaring bolani ham qiziqtiradi, ham tarbiyalaydi. "
+    "Asosiy maqsad: bola ertakni o'qib 'Men ham qahramonga o'xshashni xohlayman!' desin. "
+    "MUHIM: bolani HECH QACHON to'g'ridan-to'g'ri ayblama, uyaltirma yoki quruq nasihat "
+    "o'qima. Faqat voqea, his-tuyg'u va tabiiy oqibatlar orqali o'rgat. "
+    "Javobni FAQAT to'g'ri (valid) JSON ko'rinishida ber — boshqa hech narsa qo'shma."
+)
+
+
+def _age_style(age):
+    try:
+        a = int(age)
+    except (ValueError, TypeError):
+        a = 6
+    if a <= 6:
+        return "4–6 yosh: til SODDA, gaplar QISQA, ko'proq sehr, ranglar va hayvonlar bo'lsin."
+    if a <= 10:
+        return "7–10 yosh: sarguzasht, do'stlik va yengil hazil bo'lsin, voqea jonli kechsin."
+    return "11–14 yosh: mas'uliyat, maqsad, o'zlik (identity) va ichki o'sish mavzulari bo'lsin."
+
+
+def _child_block(i, c):
+    habits = ", ".join(
+        f"{HABIT_INFO.get(h, {}).get('label', h)} (nega yomon: {HABIT_INFO.get(h, {}).get('why', '')})"
+        for h in c["bad_habits"]
+    ) or "alohida yomon odati yo'q"
+
+    lines = [
+        f"  {i}) Ismi: {c['name']}, yoshi: {c['age']}.",
+        f"     Sevimli qahramoni: {c['favorite_hero']}.",
+        f"     Sevimli o'yinchog'i: {c['favorite_toy']}.",
+        f"     Eng yaqin do'sti: {c['best_friend']}.",
+        f"     Yoqtirgan mashg'uloti: {c['hobby']}.",
+    ]
+    if c.get("gender"):
+        lines.append(f"     Jinsi: {c['gender']}.")
+    if c.get("favorite_animal"):
+        lines.append(f"     Sevimli hayvoni: {c['favorite_animal']}.")
+    if c.get("favorite_cartoon"):
+        lines.append(f"     Sevimli multfilmi: {c['favorite_cartoon']}.")
+    if c.get("favorite_color"):
+        lines.append(f"     Sevimli rangi: {c['favorite_color']}.")
+    lines.append(f"     Yengishi kerak bo'lgan yomon odat(lar)i: {habits}.")
+    lines.append(f"     Yosh uslubi: {_age_style(c['age'])}")
+    return "\n".join(lines)
+
+
 def _build_story_prompt(kids, voice_mode):
-    kids_desc = ""
-    for i, c in enumerate(kids, 1):
-        habits = ", ".join(HABIT_INFO.get(h, {}).get("label", h) for h in c["bad_habits"]) or "alohida yomon odati yo'q"
-        kids_desc += (
-            f"\n  {i}) Ismi: {c['name']}, yoshi: {c['age']}. "
-            f"Sevimli qahramoni: {c['favorite_hero']}. "
-            f"Sevimli o'yinchog'i: {c['favorite_toy']}. "
-            f"Eng yaqin do'sti: {c['best_friend']}. "
-            f"Yoqtirgan mashg'uloti: {c['hobby']}. "
-            f"Yengilishi kerak bo'lgan yomon odat(lar)i: {habits}."
-        )
+    kids_desc = "\n".join(_child_block(i, c) for i, c in enumerate(kids, 1))
 
     if voice_mode == "both":
         voice_rule = (
-            "Ertak ROSA 3 ta qismdan iborat bo'lsin. 1-qism ONA ovozida (mehrli, shivirlab), "
-            "2-qism OTA ovozida (xotirjam, ishonchli), 3-qism (xulosa) ONA va OTA BIRGALIKDA o'qishi uchun yozilsin."
+            "Ovoz: 1-segment ONA ovozida (mehrli, shivirlab), 2-segment OTA ovozida "
+            "(xotirjam, ishonchli), 3-segment ONA va OTA BIRGALIKDA o'qishi uchun yozilsin."
         )
     elif voice_mode in ("mother", "father"):
         who = "ONA" if voice_mode == "mother" else "OTA"
-        voice_rule = f"Ertak 3 ta qismdan iborat bo'lsin va barchasi {who} ovozida o'qish uchun yumshoq, mehrli ohangda yozilsin."
+        voice_rule = f"Ovoz: barcha segmentlar {who} ovozida, yumshoq va mehrli ohangda o'qish uchun yozilsin."
     else:
-        voice_rule = "Ertak 3 ta teng qismga (sahifaga) bo'linsin."
+        voice_rule = "Ovoz: oddiy, mehrli o'qish uslubida yozilsin."
 
     return f"""
-Sen O'zbekistonning eng mashhur bolalar ertakchilaridan birisan — sening ertaklaring kitob qilib nashr etiladi.
-Yozish uslubing mumtoz xalq ertaklariday ohangdor, she'riy, mehrga to'la va tarbiyaviy bo'lsin.
-
-Quyidagi farzand(lar) uchun BITTA umumiy ertak yoz. Hamma bolalar bitta ertakda birga bosh qahramon bo'lsin va
-"Nana Banana" sehrli, rang-barang olamida sarguzasht kechirsin:
+Quyidagi farzand(lar) uchun BITTA umumiy, shaxsiylashtirilgan tarbiyaviy ertak yoz.
+Hamma bolalar bitta ertakda birga BOSH QAHRAMON bo'lsin va sehrli olamda sarguzasht kechirsin:
 {kids_desc}
 
-Ertak qoidalari:
-1. Har bir bolaning sevimli qahramoni, o'yinchog'i, eng yaqin do'sti va yoqtirgan mashg'uloti ertak voqealariga tabiiy ravishda qo'shilsin.
-2. Har bir bolaning yomon odati ertak ichida YUMSHOQ va ibratli tarzda ko'rsatilsin: bu odat nega yomonligini bola tushunsin va oxirida o'z xohishi bilan undan voz kechsin. Salbiy oqibatlar qo'rqitmasdan, mehr bilan tasvirlansin.
-3. Bolalarga bu yomon odatlardan voz kechish uchun ma'naviy ozuqa beradigan, ilhomlantiruvchi xulosa bo'lsin.
-4. Sarlavha (title) ertak mazmuniga MOS, jozibali, o'ziga xos va she'riy bo'lsin — bolaning ismi yoki ertak qahramoni/voqeasiga bog'lansin. "Nana Banana olamida" kabi umumiy nom QO'YMA.
-5. {voice_rule}
-6. Javob FAQAT quyidagi JSON formatida bo'lsin, boshqa hech narsa qo'shma:
+== SHAXSIYLASHTIRISH ==
+- Bola(lar) ertakning bosh qahramoni bo'lsin.
+- Sevimli qahramon(lar)i tabiiy ravishda paydo bo'lsin.
+- Sevimli o'yinchoq sehrli hamrohga aylansin.
+- Eng yaqin do'st yordamchi qahramon bo'lsin.
+- Sevimli mashg'ulot/qiziqish ASOSIY muammoni yechishda hal qiluvchi rol o'ynasin.
+- Berilgan bo'lsa: sevimli hayvon, multfilm va rang ham ertakka tabiiy qo'shilsin.
+
+== XULQ-ATVORNI TO'G'RILASH (asло ayblama!) ==
+Har bir yomon odat uchun shu ketma-ketlikni voqealar bilan ko'rsat:
+1) odat ko'rinadi → 2) kichik oqibat (nimadir noto'g'ri ketadi) →
+3) ijtimoiy oqibat (do'stlar xafa bo'ladi) → 4) hissiy oqibat (qahramon xafa bo'ladi) →
+5) uzoq oqibat (orzuga erishish qiyinlashadi) → 6) dono qahramon saboq beradi →
+7) qahramon yaxshi xulqni tanlaydi → 8) mukofot (yangi do'stlar, muvaffaqiyat, ishonch, baxt).
+
+== HISSIY YOY ==
+Hayrat → Sarguzasht → Muammo → Oqibat → Anglash → O'zgarish → Muvaffaqiyat → Bayram.
+
+== 3 SEGMENTGA JOYLASH (8 bosqich) ==
+- 1-segment (KIRISH): qahramon tanishuvi + sehrli sarguzasht boshlanishi (hayrat, quvonch).
+- 2-segment (SARGUZASHT): yomon odat muammo keltiradi → oqibatlar jiddiylashadi → dono qahramon mehr bilan saboq beradi.
+- 3-segment (XULOSA): qahramon o'zgaradi → yaxshi odat bilan muvaffaqiyatga erishadi → baxtli yakun.
+Har segment taxminan 300–450 so'z, jonli va tasvirli bo'lsin.
+
+== YAKUN TALABI (3-segment ichida tabiiy bo'lsin) ==
+- Ibrat: nimani o'rgandik.
+- Ijobiy kelajak: yaxshi odat davom etsa nima bo'ladi.
+- Yumshoq ogohlantirish: yomon odat qaytsa nima bo'lishi mumkin (qo'rqitmasdan).
+- Motivatsiya: bolani o'zining eng yaxshi versiyasi bo'lishga ilhomlantir.
+
+== QOIDALAR ==
+- Hech qachon nasihat o'qima yoki ma'ruza qilma — voqea va his orqali o'rgat.
+- Til o'zbekcha, ohangdor, mehrga to'la va yoshga mos bo'lsin.
+- Sarlavha ertak mazmuniga MOS, she'riy va o'ziga xos bo'lsin (bola ismi/qahramoniga bog'liq); umumiy nom qo'yma.
+- {voice_rule}
+
+Javob FAQAT quyidagi JSON formatida bo'lsin, boshqa hech narsa qo'shma:
 {{
-  "title": "Ertak mazmuniga mos jozibali sarlavha",
-  "moral": "Ertakdan kelib chiqadigan ibratli, qisqa xulosa",
-  "task": "Bolalar uchun bugungi kichik sehrli vazifa",
+  "title": "Ertak mazmuniga mos jozibali, she'riy sarlavha",
+  "moral": "Ertakdan kelib chiqadigan ibratli, qisqa xulosa (1–2 jumla)",
+  "task": "Bola uchun bugungi kichik, aniq va bajariladigan sehrli vazifa",
   "segments": [
-    {{"part": 1, "text": "1-qism matni (kirish)"}},
-    {{"part": 2, "text": "2-qism matni (sarguzasht)"}},
-    {{"part": 3, "text": "3-qism matni (xulosa)"}}
+    {{"part": 1, "text": "1-segment matni (kirish + sarguzasht boshlanishi)"}},
+    {{"part": 2, "text": "2-segment matni (muammo + oqibatlar + saboq)"}},
+    {{"part": 3, "text": "3-segment matni (o'zgarish + muvaffaqiyat + yakun va ibrat)"}}
   ]
 }}
 """
@@ -172,19 +277,34 @@ def _generate_openai_compatible(children, voice_mode, *, api_key, model, provide
 
     try:
         client = openai.OpenAI(api_key=api_key, base_url=base_url) if base_url else openai.OpenAI(api_key=api_key)
-        response = client.chat.completions.create(
-            model=model,
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant that outputs only valid JSON."},
-                {"role": "user", "content": prompt},
-            ],
-            response_format={"type": "json_object"},
-        )
-        result = json.loads(response.choices[0].message.content)
-        return _finalize_story(result, readers, voice_mode)
     except Exception as e:
-        print(f"{provider} Error:", e)
+        print(f"{provider} client init error:", e)
         return None
+
+    # Retry transient overload / rate-limit errors before giving up to the next provider
+    last_err = None
+    for attempt in range(3):
+        try:
+            response = client.chat.completions.create(
+                model=model,
+                messages=[
+                    {"role": "system", "content": STORY_MASTER_SYSTEM},
+                    {"role": "user", "content": prompt},
+                ],
+                response_format={"type": "json_object"},
+            )
+            result = json.loads(response.choices[0].message.content)
+            return _finalize_story(result, readers, voice_mode)
+        except Exception as e:
+            last_err = e
+            is_transient = any(m in str(e).lower() for m in _TRANSIENT_MARKERS)
+            if is_transient and attempt < 2:
+                time.sleep(1.5 * (attempt + 1))  # 1.5s, then 3s
+                continue
+            break
+
+    print(f"{provider} Error:", last_err)
+    return None
 
 
 # ---------------------------------------------------------------------------
@@ -198,7 +318,7 @@ def generate_family_story_gemini(children, voice_mode="none"):
     return _generate_openai_compatible(
         children, voice_mode,
         api_key=os.getenv("GEMINI_API_KEY"),
-        model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash"),
+        model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash-lite"),
         provider="Gemini",
         base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
     )

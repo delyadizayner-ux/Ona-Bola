@@ -525,6 +525,12 @@ document.addEventListener("DOMContentLoaded", () => {
         { key: "food",         label: "🍎 Foydali taomni rad etish" },
         { key: "bedtime",      label: "🌙 Vaqtida uxlamaslik" },
         { key: "behavior",     label: "🙉 Ota-ona so'ziga quloq solmaslik" },
+        { key: "lying",        label: "🤥 Yolg'on gapirish" },
+        { key: "laziness",     label: "🦥 Dangasalik, ishyoqmaslik" },
+        { key: "aggression",   label: "💢 Jahldorlik, urishish" },
+        { key: "messiness",    label: "🧦 Tartibsizlik, yig'ishtirmaslik" },
+        { key: "game_addiction", label: "🎮 O'yinlarga haddan ziyod berilish" },
+        { key: "disrespect",   label: "🙅 Kattalarga hurmatsizlik" },
     ];
 
     // Escape a value so it is safe inside a double-quoted HTML attribute
